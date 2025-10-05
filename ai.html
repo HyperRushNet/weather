@@ -1,1 +1,518 @@
-Sorry, this page was taken down by the owner.
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>AI Chat</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="https://js.puter.com/v2/"></script>
+<style>
+:root{--bg-primary:#f8fafc;--bg-secondary:#f1f5f9;--bg-tertiary:#ffffff;--text-primary:#0f172a;--text-secondary:#64748b;--accent:#3b82f6;--accent-hover:#2563eb;--success:#10b981;--success-hover:#059669;--danger:#ef4444;--sidebar-bg:#1e293b;--sidebar-item:#334155;--sidebar-item-hover:#475569;--sidebar-active:#3b82f6;--bubble-user:#3b82f6;--bubble-assistant:#f8fafc;--border:#e2e8f0;--shadow-sm:0 1px 2px 0 rgba(0,0,0,0.05);--shadow-md:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06);--shadow-lg:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -4px rgba(0,0,0,0.1);--radius-sm:0.375rem;--radius-md:0.5rem;--radius-lg:0.75rem}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;display:flex;height:100vh;background:var(--bg-primary);color:var(--text-primary);transition:background-color 0.3s cubic-bezier(0.4,0,0.2,1),color 0.3s ease;overflow:hidden}body.dark{--bg-primary:#0f0f23;--bg-secondary:#1e1b4b;--bg-tertiary:#1e1b4b;--text-primary:#f1f5f9;--text-secondary:#94a3b8;--sidebar-bg:#0f0f23;--sidebar-item:#1e1b4b;--sidebar-item-hover:#334155;--bubble-assistant:#1e1b4b;--border:#475569}body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,rgba(59,130,246,0.03) 0%,rgba(16,185,129,0.03) 100%);pointer-events:none;z-index:-1}body.dark::before{background:linear-gradient(135deg,rgba(59,130,246,0.05) 0%,rgba(16,185,129,0.05) 100%)}.sidebar{width:280px;background:linear-gradient(180deg,var(--sidebar-bg) 0%,#111827 100%);color:#f1f5f9;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);transform:translateX(0);transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);z-index:1000;border-right:1px solid var(--border);backdrop-filter:blur(10px)}.sidebar.collapsed{transform:translateX(-100%)}.sidebar h2{margin:20px 16px 16px;font-size:22px;font-weight:700;color:#f1f5f9;text-shadow:0 1px 2px rgba(0,0,0,0.1)}.chat-list{flex:1;overflow-y:auto;padding:0 12px}.chat-item{padding:14px 16px;border-radius:var(--radius-lg);margin:6px 0;display:flex;justify-content:space-between;align-items:center;background:var(--sidebar-item);cursor:pointer;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);border:1px solid transparent;position:relative;overflow:hidden}.chat-item::before{content:'';position:absolute;left:0;top:0;width:4px;height:100%;background:var(--accent);transform:scaleY(0);transition:transform 0.3s ease}.chat-item:hover{background:var(--sidebar-item-hover);transform:translateX(4px);box-shadow:var(--shadow-md)}.chat-item.active{background:var(--sidebar-active);color:#fff}.chat-item.active::before{transform:scaleY(1)}.chat-item span.name{flex:1;margin-right:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chat-item button.delete{background:var(--danger);border:none;color:white;border-radius:var(--radius-sm);padding:6px 8px;cursor:pointer;opacity:0;transition:opacity 0.2s ease;font-size:12px}.chat-item:hover button.delete{opacity:1}.add-chat{margin:12px;padding:14px 16px;border-radius:var(--radius-lg);background:linear-gradient(135deg,var(--accent),var(--accent-hover));text-align:center;cursor:pointer;font-weight:600;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);color:#fff;position:relative;overflow:hidden}.add-chat::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,hsla(0,0%,100%,0.2),transparent);transition:left 0.5s}.add-chat:hover{background:linear-gradient(135deg,var(--accent-hover),var(--accent));transform:translateY(-2px) scale(1.02);box-shadow:var(--shadow-lg)}.add-chat:hover::before{left:100%}.main{flex:1;display:flex;flex-direction:column;position:relative}.header{padding:16px 24px;background:var(--bg-tertiary);font-weight:700;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow-sm);border-bottom:1px solid var(--border);transition:all 0.3s ease;z-index:10;backdrop-filter:blur(10px)}.header div:first-child{font-size:18px;color:var(--text-primary)}.chat-window{flex:1;overflow-y:auto;padding:28px;background:var(--bg-secondary);display:flex;flex-direction:column;gap:16px}.initial-controls{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:0 32px;background:var(--bg-secondary);flex:1;transition:all 0.4s cubic-bezier(0.4,0,0.2,1)}.initial-prompt{font-size:52px;color:var(--text-secondary);text-align:center;font-weight:300;margin:0;letter-spacing:-0.025em;line-height:1.2;background:linear-gradient(135deg,var(--accent),var(--success));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.initial-prompt.dark{background:linear-gradient(135deg,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}#initialPrompt{width:65%;max-width:650px;padding:18px;border:2px solid var(--border);border-radius:var(--radius-lg);font-size:17px;resize:vertical;background:var(--bg-tertiary);color:var(--text-primary);transition:all 0.3s cubic-bezier(0.4,0,0.2,1);max-height:220px;box-shadow:var(--shadow-sm);font-family:inherit}#initialPrompt:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1),var(--shadow-md)}#startNewChatBtn{padding:14px 36px;background:linear-gradient(135deg,var(--accent),var(--accent-hover));color:white;border:none;border-radius:var(--radius-lg);font-size:17px;font-weight:600;cursor:pointer;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);box-shadow:var(--shadow-md)}#startNewChatBtn:hover{transform:translateY(-2px) scale(1.02);box-shadow:var(--shadow-lg)}#startNewChatBtn:active{transform:translateY(0)}.message{display:flex;gap:14px;max-width:85%;animation:fadeInUp 0.4s cubic-bezier(0.4,0,0.2,1)}@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.message.user{align-self:flex-end}.message.assistant{align-self:flex-start;justify-content:flex-start}#typingIndicator{opacity:0.9;animation:fadeInUp 0.4s ease}.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:16px;flex-shrink:0;box-shadow:var(--shadow-sm)}.bubble{padding:14px 18px;border-radius:var(--radius-lg);font-size:16px;white-space:pre-wrap;word-break:break-word;max-width:100%;box-shadow:var(--shadow-md);transition:all 0.3s ease;position:relative;overflow:hidden}.bubble::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,transparent 0%,rgba(255,255,255,0.03) 50%,transparent 100%);pointer-events:none}.message.user .bubble{background:linear-gradient(135deg,var(--bubble-user),#60a5fa);color:#fff;border-bottom-right-radius:var(--radius-sm)}.message.assistant .bubble{background:var(--bubble-assistant);color:var(--text-primary);border-bottom-left-radius:var(--radius-sm)}.controls{display:flex;padding:20px 28px;gap:14px;background:var(--bg-tertiary);box-shadow:var(--shadow-sm);border-top:1px solid var(--border);transition:all 0.3s ease}#prompt{flex:1;padding:14px 18px;border-radius:var(--radius-lg);border:2px solid var(--border);resize:none;font-size:15px;background:var(--bg-tertiary);color:var(--text-primary);transition:all 0.3s cubic-bezier(0.4,0,0.2,1);min-height:52px;font-family:inherit}#prompt:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.1),var(--shadow-md)}select,button{border-radius:var(--radius-md);padding:10px 14px;border:none;font-weight:600;cursor:pointer;font-size:15px;background:var(--bg-secondary);color:var(--text-primary);transition:all 0.3s cubic-bezier(0.4,0,0.2,1)}button{background:linear-gradient(135deg,var(--accent),var(--accent-hover));color:#fff;padding:14px 20px;border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}button:hover:not(:disabled){transform:translateY(-1px);box-shadow:var(--shadow-md)}button:disabled{background:var(--text-secondary);cursor:not-allowed;transform:none}.settings{display:flex;gap:10px;align-items:center}.bubble ul{margin:0;padding-left:24px}.bubble li{margin:0 0 4px 0}#spinner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center}.spinner{border:4px solid var(--bg-secondary);border-top:4px solid var(--accent);border-radius:50%;width:44px;height:44px;animation:spin 1s cubic-bezier(0.4,0,0.2,1) infinite}@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}#sidebarToggle{display:none;background:none;border:none;color:var(--text-primary);font-size:20px;cursor:pointer;padding:10px;transition:color 0.2s}body.dark #sidebarToggle{color:var(--text-primary)}@media (max-width:1024px){.sidebar{width:260px}.initial-prompt{font-size:42px}#initialPrompt{width:75%}}@media (max-width:768px){body{flex-direction:column}.sidebar{position:absolute;top:0;left:0;height:100vh;width:300px;transform:translateX(-100%);box-shadow:var(--shadow-lg)}.sidebar.open{transform:translateX(0)}#sidebarToggle{display:block;position:absolute;top:16px;left:16px;z-index:1001}.header{padding:14px 20px}.initial-prompt{font-size:36px}#initialPrompt{width:95%;font-size:18px}#startNewChatBtn{padding:18px 44px;font-size:18px}.chat-window{padding:20px;gap:12px}.message{max-width:95%;gap:10px}.bubble{padding:12px 16px;font-size:15px}.avatar{width:36px;height:36px;font-size:14px}.controls{padding:16px 20px;gap:10px}#prompt{padding:12px 16px;font-size:16px;min-height:48px}button{padding:12px 16px;font-size:16px}.settings{gap:6px}select{padding:8px 12px;font-size:14px}.header div:first-child{font-size:16px}.chat-item{padding:12px}.chat-item span.name{font-size:15px}}@media (max-width:480px){.initial-prompt{font-size:32px}#initialPrompt{padding:14px;font-size:16px}#startNewChatBtn{padding:16px 36px;font-size:16px}.chat-window{padding:16px}.message{max-width:100%}.bubble{padding:10px 14px;font-size:14px}.controls{padding:14px 16px}#prompt{padding:10px 14px}button{padding:10px 14px}.settings{display:none}#resetChatBtn{display:none!important}.sidebar h2{font-size:20px;margin:16px}.add-chat{padding:12px;font-size:15px}}@media (max-width:320px){.initial-prompt{font-size:28px}.chat-window{padding:12px}.controls{padding:12px 12px;flex-direction:column}#prompt{width:100%;margin-bottom:10px}#sendBtn{width:100%}}#typingBubble{font-size:16px;color:var(--text-secondary);min-height:20px}#typingBubble::after{content:'';animation:dots 1.4s steps(4) infinite}@keyframes dots{0%,20%{content:''}40%{content:'.'}60%{content:'..'}80%,100%{content:'...'}}#typingBubble.dark{color:var(--text-secondary)}/* Custom Modal Styles */.modal{display:none;position:fixed;z-index:2000;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,0.5);backdrop-filter:blur(5px);animation:fadeIn 0.3s ease}.modal.show{display:flex;align-items:center;justify-content:center;padding:20px}.modal-content{background:var(--bg-tertiary);margin:auto;padding:0;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:90%;max-width:400px;max-height:90vh;overflow-y:auto;border:1px solid var(--border);animation:slideIn 0.3s ease}.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.modal-header h3{margin:0;font-size:20px;font-weight:700;color:var(--text-primary)}.modal-header button{background:none;border:none;font-size:24px;color:var(--text-secondary);cursor:pointer;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.2s}.modal-header button:hover{background:var(--bg-secondary)}.modal-body{padding:20px}.modal-input{border:2px solid var(--border);border-radius:var(--radius-md);padding:12px;font-size:16px;width:100%;background:var(--bg-secondary);color:var(--text-primary);transition:border-color 0.2s}.modal-input:focus{outline:none;border-color:var(--accent)}.modal-footer{padding:20px 24px;border-top:1px solid var(--border);display:flex;gap:12px;justify-content:flex-end}.modal-btn{padding:10px 20px;border:none;border-radius:var(--radius-md);font-weight:600;cursor:pointer;transition:all 0.2s;font-size:15px}.modal-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-hover));color:#fff}.modal-btn.primary:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}.modal-btn.danger{background:var(--danger);color:#fff}.modal-btn.danger:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}.modal-btn.secondary{background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border)}.modal-btn.secondary:hover{background:var(--bg-secondary)}.modal-text{margin:0 0 16px 0;font-size:16px;color:var(--text-secondary)}.modal-icon{margin-right:8px}body.dark .modal-content{background:var(--bg-secondary);border-color:var(--border)}body.dark .modal-input{background:var(--bg-tertiary);color:var(--text-primary)}body.dark .modal-header button{color:var(--text-secondary)}body.dark .modal-btn.secondary{background:var(--sidebar-item);border-color:var(--border);color:var(--text-primary)}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes slideIn{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+<noscript><p style="text-align:center;padding:20px;color:var(--text-secondary);">JavaScript is required to use this application.</p></noscript>
+<button id="sidebarToggle"><i class="fa fa-bars"></i></button>
+<div class="sidebar" id="sidebar">
+  <h2>Chats</h2>
+  <div class="chat-list" id="chatList"></div>
+  <div class="add-chat" id="addChatBtn"><i class="fa fa-plus"></i> New Chat</div>
+</div>
+<div class="main">
+  <div id="spinner"><div class="spinner"></div></div>
+  <div class="header">
+    <div><span id="chatTitle">AI Chat</span></div>
+    <div class="settings">
+      <select id="modelSelect">
+        <option value="gpt-5">gpt-5</option>
+        <option value="gpt-5-nano">gpt-5-nano</option>
+        <option value="gpt-4o">gpt-4o</option>
+        <option value="gpt-4o-mini">gpt-4o-mini</option>
+        <option value="claude">claude</option>
+      </select>
+      <select id="streamSelect"><option value="true" selected>Stream</option><option value="false">No stream</option></select>
+      <button id="darkModeToggle"><i class="fa fa-moon"></i></button>
+      <button id="resetChatBtn" style="display:none;"><i class="fa fa-rotate-left"></i> Reset</button>
+    </div>
+  </div>
+  <div class="chat-window" id="chatWindow"></div>
+  <div id="typingIndicator" style="display:none;" class="message assistant">
+    <div class="avatar"><i class="fa fa-robot"></i></div>
+    <div class="bubble" id="typingBubble"></div>
+  </div>
+  <div id="initialControls" class="initial-controls">
+    <h1 class="initial-prompt">HyperRush AI Chat</h1>
+    <textarea id="initialPrompt" rows="3" placeholder="What would you like to chat about?"></textarea>
+    <button id="startNewChatBtn"><i class="fa fa-paper-plane"></i> Start Chat</button>
+  </div>
+  <div class="controls" id="chatControls">
+    <textarea id="prompt" rows="2" placeholder="Type your message…"></textarea>
+    <button id="sendBtn"><i class="fa fa-paper-plane"></i> Send</button>
+  </div>
+</div>
+
+<!-- Custom Modals -->
+<div id="confirmModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="confirmTitle">Confirm</h3>
+      <button id="closeConfirmModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmText" class="modal-text"></p>
+    </div>
+    <div class="modal-footer">
+      <button id="cancelConfirmBtn" class="modal-btn secondary">Cancel</button>
+      <button id="confirmConfirmBtn" class="modal-btn primary">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="inputModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="inputTitle">Input</h3>
+      <button id="closeInputModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="inputLabel" class="modal-text"></p>
+      <input type="text" id="inputField" class="modal-input" placeholder="">
+    </div>
+    <div class="modal-footer">
+      <button id="cancelInputBtn" class="modal-btn secondary">Cancel</button>
+      <button id="confirmInputBtn" class="modal-btn primary">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div id="successModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Success</h3>
+      <button id="closeSuccessModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="successText" class="modal-text"></p>
+    </div>
+    <div class="modal-footer">
+      <button id="closeSuccessBtn" class="modal-btn primary">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const dbName="PuterChatDB",dbVersion=1;
+let db,currentChatId=null,chats={};
+let pendingChatData=null;
+const systemPrompt={role:"system",content:`You are an expert AI assistant. Always respond in clear Markdown with compact bullets and inline code. Use LaTeX for math with $...$ inline and $$...$$ display. Keep lists compact and line breaks minimal.`};
+
+function generateId(){return'chat_'+Math.random().toString(36).substring(2,15)}
+function generateChatName(){const now=new Date();return`Chat ${now.toLocaleDateString()} ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`}
+
+const req=indexedDB.open(dbName,dbVersion);
+req.onupgradeneeded=e=>{db=e.target.result;if(!db.objectStoreNames.contains('chats'))db.createObjectStore('chats',{keyPath:'id'})};
+req.onsuccess=e=>{db=e.target.result;loadChats()};
+req.onerror=e=>console.error(e);
+
+function saveChat(c){if(!db)return;db.transaction('chats','readwrite').objectStore('chats').put(c)}
+function loadChats(){
+  if(!db)return;
+  const tx=db.transaction('chats','readonly');
+  const store=tx.objectStore('chats');
+  store.getAll().onsuccess=e=>{
+    e.target.result.forEach(c=>chats[c.id]=c);
+    renderChatList();
+    showInitialView();
+    const spinnerEl=document.getElementById('spinner');
+    if(spinnerEl)spinnerEl.style.display='none';
+    loadTheme();
+  }
+}
+
+function getEl(id){const el=document.getElementById(id);if(!el)throw new Error(`Element ${id} not found`);return el}
+
+let resolveModal, rejectModal;
+function showConfirmModal(title, text, confirmText='Confirm', cancelText='Cancel', confirmClass='primary'){
+  getEl('confirmTitle').textContent=title;
+  getEl('confirmText').textContent=text;
+  getEl('confirmConfirmBtn').textContent=confirmText;
+  getEl('confirmConfirmBtn').className=`modal-btn ${confirmClass}`;
+  getEl('cancelConfirmBtn').textContent=cancelText;
+  getEl('confirmModal').classList.add('show');
+  return new Promise((resolve,reject)=>{resolveModal=resolve;rejectModal=reject})
+}
+function showInputModal(title, label, placeholder, inputValidator){
+  getEl('inputTitle').textContent=title;
+  getEl('inputLabel').textContent=label;
+  getEl('inputField').placeholder=placeholder;
+  const input=getEl('inputField');
+  input.value='';
+  getEl('inputModal').classList.add('show');
+  input.focus();
+  return new Promise((resolve,reject)=>{
+    const confirmBtn=getEl('confirmInputBtn');
+    const cancelBtn=getEl('cancelInputBtn');
+    function handleConfirm(){
+      const value=input.value.trim();
+      const error=inputValidator ? inputValidator(value) : null;
+      if(error){alert(error);return}
+      getEl('inputModal').classList.remove('show');
+      resolve(value)
+    }
+    confirmBtn.onclick=handleConfirm;
+    cancelBtn.onclick=()=>{getEl('inputModal').classList.remove('show');reject(null)};
+    input.onkeypress=e=>{if(e.key==='Enter')handleConfirm()};
+    const closeInput=getEl('closeInputModal');
+    closeInput.onclick=()=>{getEl('inputModal').classList.remove('show');reject(null)}
+  })
+}
+function showSuccessModal(title, text, timer=1500){
+  getEl('successText').textContent=text;
+  getEl('successModal').classList.add('show');
+  if(timer)setTimeout(()=>{getEl('successModal').classList.remove('show')},timer)
+}
+
+document.addEventListener('click',e=>{
+  if(e.target.id==='confirmModal'&&e.target.classList.contains('modal')){getEl('confirmModal').classList.remove('show')}
+  if(e.target.id==='inputModal'&&e.target.classList.contains('modal')){getEl('inputModal').classList.remove('show');rejectModal(null)}
+  if(e.target.id==='successModal'&&e.target.classList.contains('modal')){getEl('successModal').classList.remove('show')}
+});
+getEl('closeConfirmModal').onclick=()=>{getEl('confirmModal').classList.remove('show');rejectModal(null)};
+getEl('cancelConfirmBtn').onclick=()=>{getEl('confirmModal').classList.remove('show');rejectModal(null)};
+getEl('confirmConfirmBtn').onclick=()=>{getEl('confirmModal').classList.remove('show');resolveModal(true)};
+getEl('closeInputModal').onclick=()=>{getEl('inputModal').classList.remove('show');rejectModal(null)};
+getEl('cancelInputBtn').onclick=()=>{getEl('inputModal').classList.remove('show');rejectModal(null)};
+getEl('closeSuccessModal').onclick=getEl('closeSuccessBtn').onclick=()=>{getEl('successModal').classList.remove('show')};
+
+function showInitialView(){
+  currentChatId=null;
+  window.location.hash='';
+  getEl('chatTitle').textContent='AI Chat';
+  const cw=getEl('chatWindow');
+  cw.style.display='none';
+  const ic=getEl('initialControls');
+  ic.style.display='flex';
+  ic.style.flex='1';
+  const cc=getEl('chatControls');
+  cc.style.display='none';
+  getEl('resetChatBtn').style.display='none'
+}
+function showChatView(){
+  const cw=getEl('chatWindow');
+  cw.style.display='flex';
+  const ic=getEl('initialControls');
+  ic.style.display='none';
+  const cc=getEl('chatControls');
+  cc.style.display='flex';
+  getEl('resetChatBtn').style.display='inline-block'
+}
+function renderChatList(){
+  const l=getEl('chatList');
+  l.innerHTML='';
+  for(const i in chats){
+    const item=document.createElement('div');
+    item.className='chat-item'+(i===currentChatId?' active':'');
+    const ns=document.createElement('span');
+    ns.className='name';
+    ns.textContent=chats[i].name;
+    const del=document.createElement('button');
+    del.className='delete';
+    del.innerHTML='<i class="fa fa-trash"></i>';
+    del.onclick=e=>{e.stopPropagation();deleteChat(i)};
+    item.appendChild(ns);
+    item.appendChild(del);
+    item.addEventListener('click',e=>{
+      if(!e.target.closest('button'))selectChat(i)
+    });
+    l.appendChild(item)
+  }
+}
+async function deleteChat(i){
+  const confirmed=await showConfirmModal('Are you sure?','You won\'t be able to revert this!','Yes, delete it!','Cancel','danger');
+  if(confirmed){
+    delete chats[i];
+    db.transaction('chats','readwrite').objectStore('chats').delete(i);
+    if(currentChatId===i){
+      window.location.hash='';
+      showInitialView()
+    }
+    renderChatList();
+    if(Object.keys(chats)[0])selectChat(Object.keys(chats)[0])
+  }
+}
+getEl('addChatBtn').onclick=async()=>{
+  const name=await showInputModal('New Chat','Name for new chat','Enter chat name...',(value)=>{if(!value){return 'You need to write something!'}});
+  if(name){
+    const c={id:generateId(),name:name,messages:[],settings:{model:'gpt-5',stream:true},partialResponse:'',generating:false};
+    chats[c.id]=c;
+    saveChat(c);
+    renderChatList();
+    selectChat(c.id)
+  }
+};
+getEl('startNewChatBtn').onclick=async()=>{
+  try{
+    const p=getEl('initialPrompt').value.trim();
+    if(!p)return;
+    getEl('initialPrompt').value='';
+    const name=await showInputModal('New Chat','Name for new chat','Enter chat name...',(value)=>{if(!value){return 'You need to write something!'}});
+    if(name){
+      const c={id:generateId(),name:name,messages:[],settings:{model:'gpt-5',stream:true},partialResponse:'',generating:false};
+      chats[c.id]=c;
+      saveChat(c);
+      renderChatList();
+      selectChat(c.id);
+      getEl('prompt').value=p;
+      setTimeout(()=>{getEl('sendBtn').click()},100)
+    }
+  }catch(err){console.error('Error in startNewChat:',err)}
+};
+function selectChat(i){
+  try{
+    currentChatId=i;
+    window.location.hash=i;
+    renderChatList();
+    getEl('chatTitle').textContent='Chat: '+chats[i].name;
+    const cw=getEl('chatWindow');
+    cw.innerHTML='';
+    chats[i].messages.forEach(m=>addMessage(m.role,m.content,false));
+    if(chats[i].partialResponse){
+      // Zet partialResponse als message, maar reset direct
+      chats[i].messages.push({role:'assistant',content:chats[i].partialResponse});
+      saveChat(chats[i]);
+      addMessage('assistant',chats[i].partialResponse,false);
+      chats[i].partialResponse='';
+      saveChat(chats[i])
+    }
+    getEl('modelSelect').value=chats[i].settings.model;
+    getEl('streamSelect').value=chats[i].settings.stream.toString();
+    showChatView();
+    if(chats[i].generating){
+      setTimeout(()=>{
+        try{
+          const continuePrompt='Please continue your previous response from where you left off, without repeating any previous content.';
+          getEl('prompt').value=continuePrompt;
+          getEl('sendBtn').click()
+        }catch(err){console.error('Failed to continue generation:',err)}
+      },600)
+    }
+  }catch(err){console.error('Error in selectChat:',err);showInitialView()}
+}
+function addMessage(r,c,s=true){
+  try{
+    const cw=getEl('chatWindow');
+    const m=document.createElement('div');
+    m.className='message '+r;
+    const b=document.createElement('div');
+    b.className='bubble';
+    if(r==='assistant'&&(!c||c.length===0)){
+      b.innerHTML=''
+    }else{
+      b.innerHTML=parseMarkdown(c)
+    }
+    if(r==='assistant'){
+      const a=document.createElement('div');
+      a.className='avatar';
+      a.innerHTML='<i class="fa fa-robot"></i>';
+      m.appendChild(a)
+    }
+    m.appendChild(b);
+    cw.appendChild(m);
+    cw.scrollTop=cw.scrollHeight;
+    if(MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([b]);
+    if(s&&currentChatId){
+      chats[currentChatId].messages.push({role:r,content:c});
+      saveChat(chats[currentChatId])
+    }
+  }catch(err){console.error('Error in addMessage:',err)}
+}
+function applyInline(text){
+  return text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/`(.*?)`/g,'<code>$1</code>')
+    .replace(/\[(.*?)\]\((.*?)\)/g,'<a href="$2" target="_blank">$1</a>')
+}
+function parseMarkdown(t){
+  if(!t)return'';
+  t=t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const lines=t.split('\n');
+  let html='';
+  let inList=false;
+  for(let i=0;i<lines.length;i++){
+    let line=lines[i];
+    if(line.trim()===''){
+      if(inList){html+='</ul>';inList=false}
+      html+='<br>';continue
+    }
+    let processed=false;
+    if(line.startsWith('#### ')){
+      if(inList){html+='</ul>';inList=false}
+      let content=applyInline(line.slice(5));
+      html+=`<h4>${content}</h4><br>`;
+      processed=true
+    }else if(line.startsWith('### ')){
+      if(inList){html+='</ul>';inList=false}
+      let content=applyInline(line.slice(4));
+      html+=`<h3>${content}</h3><br>`;
+      processed=true
+    }else if(line.startsWith('## ')){
+      if(inList){html+='</ul>';inList=false}
+      let content=applyInline(line.slice(3));
+      html+=`<h2>${content}</h2><br>`;
+      processed=true
+    }else if(line.startsWith('# ')){
+      if(inList){html+='</ul>';inList=false}
+      let content=applyInline(line.slice(2));
+      html+=`<h1>${content}</h1><br>`;
+      processed=true
+    }else if(line.match(/^\s*-\s+/)){
+      if(!inList){html+='<ul>';inList=true}
+      let content=applyInline(line.replace(/^\s*-\s+/,''));
+      html+=`<li>${content}</li>`;
+      processed=true
+    }
+    if(!processed){
+      if(inList){html+='</ul>';inList=false}
+      let content=applyInline(line);
+      html+=`${content}<br>`
+    }
+  }
+  if(inList)html+='</ul>';
+  return html
+}
+
+// SEND BTN LOGIC -- FIXED
+getEl('sendBtn').onclick=async()=>{
+  try{
+    // Check of er een geselecteerde chat is
+    if(!currentChatId || !chats[currentChatId]) {
+      showSuccessModal('No chat selected','Please select or create a chat first.');
+      return;
+    }
+    const p=getEl('prompt').value.trim();
+    if(!p) return;
+    getEl('prompt').value='';
+    addMessage('user',p,true);
+
+    const sendBtn=getEl('sendBtn');
+    sendBtn.disabled=true;
+
+    const m=getEl('modelSelect').value,s=getEl('streamSelect').value==='true';
+    const context=[systemPrompt,...chats[currentChatId].messages.filter(msg=>msg.role!=='system')];
+    const msgs=[...context];
+    const indicator=getEl('typingIndicator');
+    const typingBubble=getEl('typingBubble');
+    const cw=getEl('chatWindow');
+
+    indicator.style.display='flex';
+    typingBubble.innerHTML='';
+    cw.appendChild(indicator);
+    cw.scrollTop=cw.scrollHeight;
+
+    chats[currentChatId].generating=true;
+    saveChat(chats[currentChatId]);
+    let rep='';
+    try{
+      if(s){
+        const resp=await puter.ai.chat(msgs,{model:m,stream:true});
+        if(resp&&typeof resp[Symbol.asyncIterator]==='function'){
+          for await(const part of resp){
+            rep+=(part?.text??part?.delta??part?.message??'');
+            typingBubble.innerHTML=parseMarkdown(rep);
+            if(MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([typingBubble]);
+            chats[currentChatId].partialResponse=rep;
+            saveChat(chats[currentChatId])
+          }
+        }else{throw new Error('Invalid stream response')}
+      }else{
+        const resp=await puter.ai.chat(msgs,{model:m,stream:false});
+        rep=resp?.message?.content??JSON.stringify(resp,null,2);
+        typingBubble.innerHTML=parseMarkdown(rep);
+        if(MathJax&&MathJax.typesetPromise)MathJax.typesetPromise([typingBubble]);
+        chats[currentChatId].partialResponse=rep;
+        saveChat(chats[currentChatId])
+      }
+    }catch(e){throw e}
+    finally{
+      indicator.style.display='none';
+      typingBubble.innerHTML='';
+      // indicator blijft in DOM!
+      addMessage('assistant',rep,true);
+      chats[currentChatId].partialResponse='';
+      chats[currentChatId].generating=false;
+      saveChat(chats[currentChatId]);
+      sendBtn.disabled=false
+    }
+  }catch(err){
+    console.error('Error in sendBtn:',err);
+    const sendBtn=getEl('sendBtn');
+    sendBtn.disabled=false;
+    const indicator=getEl('typingIndicator');
+    indicator.style.display='none'; // niet uit DOM halen!
+    const errorMsg='[Error] '+(err.message||err);
+    addMessage('assistant',errorMsg,true);
+    if(currentChatId){
+      chats[currentChatId].partialResponse='';
+      chats[currentChatId].generating=false;
+      saveChat(chats[currentChatId])
+    }
+  }
+};
+
+getEl('resetChatBtn').onclick=async()=>{
+  if(currentChatId){
+    const confirmed=await showConfirmModal('Reset Chat?','This will clear all messages in this chat.','Yes, reset it!','Cancel','danger');
+    if(confirmed){
+      chats[currentChatId].messages=[];
+      chats[currentChatId].partialResponse='';
+      chats[currentChatId].generating=false;
+      saveChat(chats[currentChatId]);
+      getEl('chatWindow').innerHTML=''
+    }
+  }
+};
+getEl('modelSelect').onchange=()=>{
+  if(currentChatId){
+    chats[currentChatId].settings.model=getEl('modelSelect').value;
+    saveChat(chats[currentChatId])
+  }
+};
+getEl('streamSelect').onchange=()=>{
+  if(currentChatId){
+    chats[currentChatId].settings.stream=getEl('streamSelect').value==='true';
+    saveChat(chats[currentChatId])
+  }
+};
+function loadTheme(){
+  try{
+    const isDark=localStorage.getItem('darkMode')==='true';
+    if(isDark){
+      document.body.classList.add('dark');
+      getEl('darkModeToggle').innerHTML='<i class="fa fa-sun"></i>'
+    }
+  }catch(err){console.error('Error in loadTheme:',err)}
+}
+getEl('darkModeToggle').onclick=()=>{
+  document.body.classList.toggle('dark');
+  const isDark=document.body.classList.contains('dark');
+  getEl('darkModeToggle').innerHTML=isDark?'<i class="fa fa-sun"></i>':'<i class="fa fa-moon"></i>';
+  localStorage.setItem('darkMode',isDark);
+  showSuccessModal('Theme Changed!',isDark?'Dark mode activated.':'Light mode activated.');
+};
+window.addEventListener('hashchange',()=>{
+  const hashId=window.location.hash.substring(1);
+  if(hashId&&chats[hashId]){
+    selectChat(hashId)
+  }else{
+    showInitialView()
+  }
+});
+getEl('sidebarToggle').onclick=()=>{
+  const sidebar=getEl('sidebar');
+  sidebar.classList.toggle('open')
+};
+showInitialView();
+</script>
+</body>
+</html>
