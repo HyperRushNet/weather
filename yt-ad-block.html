@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YouTube → YewTu Embed</title>
+<title>YouTube → YewTu Ad-Free</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -47,18 +47,6 @@
         text-align: center;
         word-break: break-all;
     }
-    #embedContainer {
-        margin-top: 15px;
-        width: 100%;
-        max-width: 560px;
-        text-align: center;
-    }
-    iframe {
-        width: 100%;
-        height: 315px;
-        border: none;
-        border-radius: 6px;
-    }
     @media(max-width: 400px) {
         input {
             font-size: 14px;
@@ -68,25 +56,19 @@
             font-size: 14px;
             padding: 8px 16px;
         }
-        iframe {
-            height: 200px;
-        }
     }
 </style>
 </head>
 <body>
-<h2>YouTube URL → Ad-Free Embed</h2>
+<h2>YouTube URL → Ad-Free Link</h2>
 <input type="text" id="ytUrl" placeholder="Paste your YouTube URL here">
-<button onclick="generateEmbed()">Generate Ad-Free Link</button>
+<button onclick="generateLink()">Generate Ad-Free Link</button>
 <p id="result"></p>
-<div id="embedContainer"></div>
 
 <script>
-function generateEmbed() {
+function generateLink() {
     const url = document.getElementById('ytUrl').value.trim();
     const result = document.getElementById('result');
-    const embedContainer = document.getElementById('embedContainer');
-    embedContainer.innerHTML = '';
 
     if (!url) {
         result.textContent = "No URL entered.";
@@ -113,7 +95,6 @@ function generateEmbed() {
             videoID = urlObj.searchParams.get('v');
             if (!videoID) {
                 const pathParts = urlObj.pathname.split('/');
-                // /embed/ID or /v/ID
                 const possible = pathParts.filter(p => p && p !== 'embed' && p !== 'v');
                 if (possible.length > 0) videoID = possible[possible.length - 1];
             }
@@ -125,11 +106,8 @@ function generateEmbed() {
 
     if (videoID) {
         result.textContent = "Video ID: " + videoID;
-        // Embed iframe directly
-        const iframe = document.createElement('iframe');
-        iframe.src = `https://yewtu.be/embed/${videoID}`;
-        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-        embedContainer.appendChild(iframe);
+        // Replace current tab with YewTu embed
+        window.location.href = `https://yewtu.be/embed/${videoID}`;
     } else {
         result.textContent = "No video ID found in the URL.";
     }
