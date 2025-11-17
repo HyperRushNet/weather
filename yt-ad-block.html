@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube → YewTu Embed</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f9;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        margin: 0;
+    }
+    h2 {
+        text-align: center;
+        color: #333;
+    }
+    input {
+        width: 90%;
+        max-width: 500px;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background: #ff0000;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    button:hover {
+        background: #cc0000;
+    }
+    #result {
+        margin-top: 10px;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+        word-break: break-all;
+    }
+    #embedButton {
+        margin-top: 15px;
+        text-align: center;
+    }
+    @media(max-width: 400px) {
+        input {
+            font-size: 14px;
+            padding: 8px;
+        }
+        button {
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+    }
+</style>
+</head>
+<body>
+<h2>YouTube URL → Video ID → YewTu Embed</h2>
+<input type="text" id="ytUrl" placeholder="Paste your YouTube URL here">
+<button onclick="extractID()">Generate Ad-Free Link</button>
+<p id="result"></p>
+<div id="embedButton"></div>
+
+<script>
+function extractID() {
+    const url = document.getElementById('ytUrl').value.trim();
+    const result = document.getElementById('result');
+    const embedDiv = document.getElementById('embedButton');
+    embedDiv.innerHTML = '';
+
+    if (!url) {
+        result.textContent = "No URL entered.";
+        return;
+    }
+
+    if (!/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//.test(url)) {
+        result.textContent = "This is not a valid YouTube URL.";
+        return;
+    }
+
+    let videoID = null;
+
+    try {
+        const urlObj = new URL(url);
+
+        if (urlObj.hostname.includes('youtu.be')) {
+            videoID = urlObj.pathname.slice(1);
+        } else if (urlObj.hostname.includes('youtube.com')) {
+            videoID = urlObj.searchParams.get('v');
+            if (!videoID) {
+                const pathParts = urlObj.pathname.split('/');
+                videoID = pathParts.includes('embed') || pathParts.includes('v') ? pathParts.pop() : null;
+            }
+        }
+    } catch(e) {
+        result.textContent = "Invalid URL.";
+        return;
+    }
+
+    if (videoID) {
+        result.textContent = "Video ID: " + videoID;
+        const btn = document.createElement('button');
+        btn.textContent = "Open YewTu Embed";
+        btn.onclick = () => {
+            window.location.href = `https://yewtu.be/embed/${videoID}`;
+        };
+        embedDiv.appendChild(btn);
+    } else {
+        result.textContent = "No video ID found in the URL.";
+    }
+}
+</script>
+</body>
+</html>
