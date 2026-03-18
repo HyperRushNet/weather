@@ -3,133 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pollinations AI + Credits</title>
+    <title>Pollinations AI Dashboard</title>
     <style>
         :root {
-            --bg-color: #0f0f0f;
-            --text-color: #e0e0e0;
-            --accent-color: #d946ef;
-            --search-color: #22d3ee;
-            --card-bg: #1a1a1a;
-            --input-bg: #262626;
-            --border-color: #333;
-            --success-color: #4ade80;
+            --bg-color: #09090b;
+            --bg-secondary: #18181b;
+            --card-bg: #1f1f23;
+            --border-color: #27272a;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --accent-primary: #8b5cf6; /* Violet */
+            --accent-secondary: #6366f1; /* Indigo */
+            --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            --success: #4ade80;
+            --warning: #facc15;
+            --danger: #f87171;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
+            color: var(--text-primary);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
             padding: 20px;
         }
-        .container {
-            background-color: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+
+        /* Main Container */
+        .app-shell {
             width: 100%;
-            max-width: 700px;
-            border: 1px solid var(--border-color);
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        h1 {
-            margin-top: 0;
-            color: var(--accent-color);
-            font-size: 1.8rem;
-            text-align: center;
-            margin-bottom: 0.5rem;
-        }
-        
-        /* Status Panel Styling */
-        .status-panel {
+
+        /* Header */
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--input-bg);
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
+            padding: 10px 0;
         }
-        .status-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.9em;
-        }
-        .status-label { color: #888; font-size: 0.8em; margin-bottom: 4px; }
-        .status-value { font-weight: bold; color: var(--success-color); font-size: 1.1em; }
-        .status-key { font-family: monospace; color: #aaa; font-size: 0.8em; }
-        .logout-btn { 
-            background: transparent; color: #f87171; border: 1px solid #f87171; 
-            padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em;
-            width: auto;
-        }
-        .logout-btn:hover { background: rgba(248, 113, 113, 0.1); }
+        .logo { font-size: 1.2rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .user-info { font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
+        .btn-logout { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
+        .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
 
-        input, textarea, select {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0 16px 0;
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: var(--input-bg);
-            color: var(--text-color);
-            box-sizing: border-box;
-            font-size: 16px;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
         }
-        input:focus, textarea:focus, select:focus { border-color: var(--accent-color); outline: none; }
-        textarea { height: 100px; resize: vertical; font-family: inherit; }
+        .card.full-width { grid-column: span 2; }
+
+        .card-label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .card-value { font-size: 2rem; font-weight: 700; color: var(--text-primary); }
         
-        button {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            width: 100%;
-            transition: opacity 0.2s;
-        }
-        button:hover { opacity: 0.9; }
-        button:disabled { background-color: #444; cursor: not-allowed; color: #aaa; }
+        /* Progress Bar */
+        .progress-container { margin-top: 10px; height: 6px; background: var(--bg-color); border-radius: 3px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--accent-gradient); width: 0%; transition: width 0.5s ease-out; border-radius: 3px; }
+        .progress-bar.low { background: var(--danger); }
+        .progress-bar.medium { background: var(--warning); }
+
+        .stat-small { font-size: 0.85rem; margin-top: 8px; display: flex; justify-content: space-between; color: var(--text-secondary); }
+
+        /* Input Area */
+        .input-section { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
         
-        .output-box {
-            margin-top: 20px;
-            text-align: left;
-            background: var(--input-bg);
-            padding: 18px;
-            border-radius: 8px;
-            white-space: pre-wrap;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.95em;
-            min-height: 100px;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            line-height: 1.6;
+        .controls-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        select { 
+            flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); 
+            color: var(--text-primary); padding: 10px; border-radius: 8px; outline: none;
         }
+        select:focus { border-color: var(--accent-primary); }
+
+        textarea {
+            width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color);
+            color: var(--text-primary); padding: 15px; border-radius: 8px; resize: vertical;
+            min-height: 100px; font-family: inherit; font-size: 0.95rem; outline: none;
+            transition: border-color 0.2s;
+        }
+        textarea:focus { border-color: var(--accent-primary); }
+
+        .btn-generate {
+            width: 100%; padding: 14px; margin-top: 10px; border: none; border-radius: 8px;
+            background: var(--accent-gradient); color: white; font-weight: 600; font-size: 1rem;
+            cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn-generate:hover { opacity: 0.9; }
+        .btn-generate:active { transform: scale(0.99); }
+        .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Output Area */
+        .output-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; min-height: 200px; }
+        .output-text { white-space: pre-wrap; font-family: 'Courier New', Courier, monospace; line-height: 1.6; color: var(--text-secondary); }
+        .output-cursor::after { content: "▋"; animation: blink 1s infinite; color: var(--accent-primary); }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        .status-footer { margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary); text-align: center; }
+        .error-msg { color: var(--danger); }
+
+        /* Loading Spinner */
+        .spinner { border: 3px solid var(--bg-color); border-top: 3px solid var(--accent-primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Login Screen */
+        .login-center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; text-align: center; }
+        .btn-login { padding: 16px 40px; background: var(--accent-gradient); border: none; border-radius: 10px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="container" id="app"></div>
+<div class="app-shell" id="app">
+    <!-- Content wordt hier geladen -->
+</div>
 
 <script>
     // --- CONFIGURATIE ---
     const BASE_URL = "https://gen.pollinations.ai";
     const currentUrl = window.location.href.split('#')[0];
     
-    // We voegen 'permissions=profile,balance,usage' toe om de credits te kunnen lezen
+    // Vraag om specifieke rechten: balance (saldo), usage (gebruik), profile (account)
     const AUTH_URL = `https://enter.pollinations.ai/authorize?redirect_url=${encodeURIComponent(currentUrl)}&permissions=profile,balance,usage`;
     
     const appDiv = document.getElementById('app');
-    let currentKey = null; // Huidige key opslaan in variabele
+    let API_KEY = null;
+    
+    // State voor live data
+    let state = {
+        balance: 0,
+        sessionCost: 0,
+        isLoading: false
+    };
 
     // --- AUTH LOGICA ---
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -141,93 +160,24 @@
         location.reload();
     } else {
         const storedKey = localStorage.getItem('pollinations_api_key');
-        currentKey = storedKey;
-        if (!storedKey) { showAuthScreen(); } else { initApp(storedKey); }
-    }
-
-    // --- FUNCTIES ---
-    function showAuthScreen() {
-        appDiv.innerHTML = `
-            <h1>Start</h1>
-            <p style="text-align:center; margin-bottom: 20px; color:#ccc;">
-                Log in om je saldo te zien en AI te gebruiken.
-            </p>
-            <button onclick="window.location.href='${AUTH_URL}'">Verbind met Pollinations</button>
-        `;
-    }
-
-    // Initialiseer app en haal direct saldo op
-    async function initApp(key) {
-        showAppSkeleton(key);
-        await fetchBalance(); // Haal saldo op bij start
-    }
-
-    function showAppSkeleton(key) {
-        const keyPreview = key.length > 8 ? `${key.substring(0, 4)}...${key.substring(key.length - 4)}` : "...";
-        appDiv.innerHTML = `
-            <h1>AI Dashboard</h1>
-            
-            <!-- STATUS PANEL -->
-            <div class="status-panel">
-                <div class="status-item">
-                    <span class="status-label">Saldo (Pollen)</span>
-                    <span class="status-value" id="balanceDisplay">...</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">API Key</span>
-                    <span class="status-key">${keyPreview}</span>
-                </div>
-                <div class="status-item">
-                    <button class="logout-btn" onclick="logout()">Ontkoppel</button>
-                </div>
-            </div>
-
-            <label for="modelSelect">Model</label>
-            <select id="modelSelect">
-                <option value="gemini-search">Gemini 2.5 Flash (Web Search) 🌐</option>
-                <option value="perplexity-fast">Perplexity Sonar (Web Search) 🌐</option>
-                <option value="openai">OpenAI (GPT-5 Mini)</option>
-                <option value="openai-fast">OpenAI Fast (Nano)</option>
-                <option value="mistral">Mistral Small 3.2</option>
-            </select>
-
-            <label for="promptInput">Prompt</label>
-            <textarea id="promptInput" placeholder="Typ je vraag..."></textarea>
-            
-            <button id="genBtn" onclick="startStream()">Genereer</button>
-            
-            <div class="output-box" id="output">Wachten op input...</div>
-        `;
-    }
-
-    // Functie om saldo op te halen
-    async function fetchBalance() {
-        const balanceEl = document.getElementById('balanceDisplay');
-        if (!balanceEl) return;
-
-        try {
-            const res = await fetch(`${BASE_URL}/account/balance`, {
-                headers: { 'Authorization': `Bearer ${currentKey}` }
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                // Het API antwoord kan een object zijn {balance: 100} of direct een nummer
-                // We vangen beide af
-                const amount = (typeof data === 'object' && data.balance !== undefined) ? data.balance : data;
-                balanceEl.innerText = amount.toLocaleString();
-                
-                // Kleur aanpassen als laag
-                if (amount < 100) balanceEl.style.color = "#f87171"; 
-                else balanceEl.style.color = "#4ade80";
-            } else {
-                balanceEl.innerText = "Error";
-                balanceEl.style.color = "#f87171";
-            }
-        } catch (e) {
-            console.error("Kon saldo niet ophalen", e);
-            balanceEl.innerText = "---";
+        if (storedKey) {
+            API_KEY = storedKey;
+            initApp();
+        } else {
+            showLogin();
         }
+    }
+
+    function showLogin() {
+        appDiv.innerHTML = `
+            <div class="login-center">
+                <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Pollinations AI</h1>
+                <p style="color: var(--text-secondary); max-width: 400px;">
+                    Verbind je account om te beginnen. Je krijgt direct inzicht in je saldo en gebruik.
+                </p>
+                <button class="btn-login" onclick="window.location.href='${AUTH_URL}'">Verbind Account</button>
+            </div>
+        `;
     }
 
     function logout() {
@@ -235,25 +185,137 @@
         location.reload();
     }
 
-    // --- STREAMING LOGICA ---
-    async function startStream() {
+    // --- APP INITIALISATIE ---
+    async function initApp() {
+        renderUI();
+        await updateDashboard(); // Haal saldo en usage direct op
+    }
+
+    function renderUI() {
+        appDiv.innerHTML = `
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">Pollinations Dashboard</div>
+                <div class="user-info">
+                    <span id="status-text">Verbonden</span>
+                    <button class="btn-logout" onclick="logout()">Ontkoppelen</button>
+                </div>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-label">Beschikbaar Saldo</div>
+                    <div class="card-value" id="ui-balance">...</div>
+                    <div class="stat-small">Pollen Credits</div>
+                </div>
+                <div class="card">
+                    <div class="card-label">Gebruik Deze Sessie</div>
+                    <div class="card-value" id="ui-session-cost" style="color: var(--warning);">0</div>
+                    <div class="stat-small">Pollen verbruikt</div>
+                </div>
+                <!-- Visual Usage Bar (Full Width) -->
+                <div class="card full-width">
+                    <div class="card-label">Status Overzicht</div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="ui-progress"></div>
+                    </div>
+                    <div class="stat-small" id="ui-stats-text">Laden...</div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-section">
+                <div class="controls-row">
+                    <select id="modelSelect">
+                        <option value="openai">OpenAI GPT-5 Mini (Snel)</option>
+                        <option value="openai-fast">OpenAI Nano (Snellste)</option>
+                        <option value="gemini-search">Gemini 2.5 Flash (Web Search)</option>
+                        <option value="perplexity-fast">Perplexity Sonar (Web Search)</option>
+                        <option value="mistral">Mistral Small 3.2</option>
+                    </select>
+                </div>
+                <textarea id="promptInput" placeholder="Typ je vraag of opdracht hier..."></textarea>
+                <button id="genBtn" class="btn-generate" onclick="startGeneration()">Genereer Antwoord</button>
+            </div>
+
+            <!-- Output Area -->
+            <div class="output-container">
+                <div class="output-text" id="outputArea">Je antwoord verschijnt hier...</div>
+            </div>
+            
+            <div class="status-footer" id="footer-status">Klaar.</div>
+        `;
+    }
+
+    // --- DATA FUNCTIES ---
+    
+    // Haal saldo en update UI
+    async function updateDashboard() {
+        if (!API_KEY) return;
+        const balanceEl = document.getElementById('ui-balance');
+        const statsEl = document.getElementById('ui-stats-text');
+        const progressEl = document.getElementById('ui-progress');
+
+        try {
+            // 1. Huidig saldo ophalen
+            const res = await fetch(`${BASE_URL}/account/balance`, {
+                headers: { 'Authorization': `Bearer ${API_KEY}` }
+            });
+            
+            if (res.ok) {
+                const data = await res.json();
+                // API geeft ofwel een nummer of object {balance: nummer}
+                state.balance = (typeof data === 'object' && data.balance !== undefined) ? data.balance : data;
+                
+                // UI Update
+                balanceEl.innerText = state.balance.toLocaleString();
+                
+                // Visuele logica voor de balk (we simuleren een limiet van 1000 voor demo, of passen kleur aan)
+                // Als we geen limiet weten, maken we de balk 100% groen als er saldo is.
+                const healthPercent = state.balance > 0 ? 100 : 0;
+                progressEl.style.width = Math.min(100, healthPercent) + '%';
+                
+                if (state.balance < 50) progressEl.className = 'progress-bar low';
+                else if (state.balance < 200) progressEl.className = 'progress-bar medium';
+                else progressEl.className = 'progress-bar';
+
+                statsEl.innerText = `Saldo: ${state.balance.toLocaleString()} Pollen beschikbaar.`;
+            } else {
+                balanceEl.innerText = "Fout";
+                statsEl.innerText = "Kon saldo niet ophalen.";
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    // --- GENERATIE LOGICA ---
+    async function startGeneration() {
         const prompt = document.getElementById('promptInput').value;
         const model = document.getElementById('modelSelect').value;
-        const outputDiv = document.getElementById('output');
+        const outputArea = document.getElementById('outputArea');
         const btn = document.getElementById('genBtn');
+        const footerStatus = document.getElementById('footer-status');
 
-        if (!prompt) { alert("Vul eerst een prompt in."); return; }
+        if (!prompt) return;
 
+        // UI Lock
         btn.disabled = true;
-        btn.innerText = "Bezig...";
-        outputDiv.textContent = ""; 
-        
+        btn.innerHTML = '<div class="spinner"></div> Genereren...';
+        outputArea.className = 'output-text output-cursor';
+        outputArea.textContent = '';
+        footerStatus.innerText = "Bezig met verbinden...";
+        state.isLoading = true;
+
         try {
+            const startBalance = state.balance;
+
             const response = await fetch(`${BASE_URL}/v1/chat/completions`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${currentKey}`
+                    "Authorization": `Bearer ${API_KEY}`
                 },
                 body: JSON.stringify({
                     model: model,
@@ -263,13 +325,16 @@
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error?.message || `Server error ${response.status}`);
+                const err = await response.json();
+                throw new Error(err.error?.message || `HTTP ${response.status}`);
             }
 
+            // Streaming Reader
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let buffer = "";
+
+            footerStatus.innerText = "Streamen... even wachten op data...";
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -277,37 +342,60 @@
 
                 buffer += decoder.decode(value, { stream: true });
                 const lines = buffer.split("\n");
-                buffer = lines.pop(); 
+                buffer = lines.pop();
 
                 for (const line of lines) {
                     if (line.startsWith("data: ")) {
-                        const data = line.slice(6);
-                        if (data === "[DONE]") continue;
+                        const jsonStr = line.slice(6);
+                        if (jsonStr === "[DONE]") continue;
+
                         try {
-                            const json = JSON.parse(data);
+                            const json = JSON.parse(jsonStr);
                             const content = json.choices?.[0]?.delta?.content;
                             if (content) {
-                                outputDiv.textContent += content;
-                                outputDiv.scrollTop = outputDiv.scrollHeight;
+                                outputArea.textContent += content;
+                                outputArea.scrollTop = outputArea.scrollHeight; // Auto scroll
                             }
-                        } catch (e) { /* Ignore */ }
+                        } catch (e) { /* Ignore chunk parse errors */ }
                     }
                 }
             }
 
+            // Finish
+            footerStatus.innerText = "Klaar. Saldo wordt bijgewerkt...";
+            outputArea.className = 'output-text'; // Cursor weg
+            
+            // Update Dashboard (zie de daling)
+            await updateDashboard();
+            
+            // Bereken sessie kosten (indicatief)
+            const cost = startBalance - state.balance;
+            if (cost > 0) {
+                state.sessionCost += cost;
+                document.getElementById('ui-session-cost').innerText = state.sessionCost.toLocaleString();
+                footerStatus.innerText = `Klaar! Kosten: ${cost} Pollen.`;
+            } else {
+                footerStatus.innerText = "Klaar!";
+            }
+
         } catch (error) {
-            console.error("Error:", error);
-            outputDiv.textContent = `Fout: ${error.message}`;
+            console.error(error);
+            outputArea.className = 'output-text';
+            outputArea.innerHTML = `<span class="error-msg">Fout: ${error.message}</span>`;
+            
             if (error.message.includes("402")) {
-                outputDiv.textContent += "\n\n❌ SALDO TE LAAG. Koop meer pollen.";
-                document.getElementById('balanceDisplay').innerText = "0";
-                document.getElementById('balanceDisplay').style.color = "#f87171";
+                outputArea.innerHTML += "\n\n❌ Saldo onvoldoende. Laad je account op.";
+                // Forceer update om 0 te tonen
+                state.balance = 0;
+                updateDashboard();
+            } else if (error.message.includes("401")) {
+                outputArea.innerHTML += "\n\n🔑 Key ongeldig. Log opnieuw in.";
+                setTimeout(logout, 2000);
             }
         } finally {
             btn.disabled = false;
-            btn.innerText = "Genereer";
-            // VERVERS SALDO NA ELKE GENERATIE
-            fetchBalance(); 
+            btn.innerText = "Genereer Antwoord";
+            state.isLoading = false;
         }
     }
 </script>
