@@ -1,402 +1,406 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pollinations AI Dashboard</title>
+    <title>Pollinations AI // Smart Console</title>
     <style>
         :root {
-            --bg-color: #09090b;
-            --bg-secondary: #18181b;
-            --card-bg: #1f1f23;
-            --border-color: #27272a;
-            --text-primary: #fafafa;
-            --text-secondary: #a1a1aa;
-            --accent-primary: #8b5cf6; /* Violet */
-            --accent-secondary: #6366f1; /* Indigo */
-            --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
-            --success: #4ade80;
-            --warning: #facc15;
-            --danger: #f87171;
+            --bg-app: #050507;
+            --bg-panel: #0E1016;
+            --bg-card: #14161E;
+            --bg-input: #0A0C12;
+            --border: #1E2028;
+            --border-focus: #3B3D46;
+            --text-main: #FFFFFF;
+            --text-muted: #6B7280;
+            --accent: #6366F1;
+            --accent-glow: rgba(99, 102, 241, 0.15);
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            padding: 20px;
-        }
+        body { background: var(--bg-app); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; padding: 24px; }
 
-        /* Main Container */
-        .app-shell {
-            width: 100%;
-            max-width: 800px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-        }
-        .logo { font-size: 1.2rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .user-info { font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
-        .btn-logout { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
-        .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
-
-        /* Dashboard Cards */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
+        /* Layout */
+        .shell { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 24px; position: relative; }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--accent-glow); } 70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); } 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        
+        /* Components */
         .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            animation: fadeIn 0.5s ease-out forwards;
             position: relative;
             overflow: hidden;
         }
-        .card.full-width { grid-column: span 2; }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        }
 
-        .card-label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.05em; }
-        .card-value { font-size: 2rem; font-weight: 700; color: var(--text-primary); }
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 10px var(--accent); }
+        .status-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; gap: 6px; }
+        .status-badge.error { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.2); }
         
-        /* Progress Bar */
-        .progress-container { margin-top: 10px; height: 6px; background: var(--bg-color); border-radius: 3px; overflow: hidden; }
-        .progress-bar { height: 100%; background: var(--accent-gradient); width: 0%; transition: width 0.5s ease-out; border-radius: 3px; }
-        .progress-bar.low { background: var(--danger); }
-        .progress-bar.medium { background: var(--warning); }
+        /* Grid Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .stat-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 4px; transition: all 0.3s; }
+        .stat-box:hover { border-color: var(--border-focus); }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .stat-value.balance { color: var(--success); }
+        .stat-value.used { color: var(--warning); }
 
-        .stat-small { font-size: 0.85rem; margin-top: 8px; display: flex; justify-content: space-between; color: var(--text-secondary); }
+        /* Smart Model Selector */
+        .model-selector { position: relative; margin-bottom: 16px; }
+        .selector-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .selector-label { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+        .selector-refresh { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; transition: color 0.2s; }
+        .selector-refresh:hover { color: var(--text-main); }
+
+        select { 
+            width: 100%; padding: 14px; background: var(--bg-panel); border: 1px solid var(--border);
+            color: var(--text-main); border-radius: 10px; font-size: 0.95rem; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;
+        }
+        select:focus { outline: none; border-color: var(--accent); }
+        
+        /* Tags for capabilities */
+        .model-tags { display: flex; gap: 6px; margin-top: 8px; height: 24px; }
+        .tag { font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tag.search { background: rgba(99, 102, 241, 0.15); color: var(--accent); }
+        .tag.tools { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .tag.code { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .tag.paid { background: rgba(255, 255, 255, 0.1); color: var(--text-muted); }
 
         /* Input Area */
-        .input-section { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
-        
-        .controls-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        select { 
-            flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); 
-            color: var(--text-primary); padding: 10px; border-radius: 8px; outline: none;
-        }
-        select:focus { border-color: var(--accent-primary); }
-
+        .input-area { display: flex; flex-direction: column; gap: 12px; }
         textarea {
-            width: 100%; background: var(--bg-secondary); border: 1px solid var(--border-color);
-            color: var(--text-primary); padding: 15px; border-radius: 8px; resize: vertical;
-            min-height: 100px; font-family: inherit; font-size: 0.95rem; outline: none;
-            transition: border-color 0.2s;
+            width: 100%; background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main);
+            padding: 16px; border-radius: 12px; font-size: 1rem; resize: none; min-height: 120px; line-height: 1.5;
+            transition: border-color 0.3s;
         }
-        textarea:focus { border-color: var(--accent-primary); }
+        textarea:focus { outline: none; border-color: var(--accent); }
+        textarea::placeholder { color: var(--text-muted); opacity: 0.7; }
 
         .btn-generate {
-            width: 100%; padding: 14px; margin-top: 10px; border: none; border-radius: 8px;
-            background: var(--accent-gradient); color: white; font-weight: 600; font-size: 1rem;
-            cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+            background: var(--accent); color: white; border: none; padding: 14px; border-radius: 10px;
+            font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: flex;
+            justify-content: center; align-items: center; gap: 8px;
         }
-        .btn-generate:hover { opacity: 0.9; }
-        .btn-generate:active { transform: scale(0.99); }
-        .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-generate:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-generate:active { transform: translateY(0); }
+        .btn-generate:disabled { background: #2D2F3A; cursor: not-allowed; transform: none; filter: none; }
+        
+        .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Output Area */
-        .output-container { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; min-height: 200px; }
-        .output-text { white-space: pre-wrap; font-family: 'Courier New', Courier, monospace; line-height: 1.6; color: var(--text-secondary); }
-        .output-cursor::after { content: "▋"; animation: blink 1s infinite; color: var(--accent-primary); }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        /* Output Console */
+        .console-window { background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+        .console-header { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot.red { background: #FF5F56; } .dot.yellow { background: #FFBD2E; } .dot.green { background: #27C93F; }
+        
+        .console-body { padding: 20px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.9rem; line-height: 1.6; min-height: 150px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; color: var(--text-muted); }
+        .console-body::-webkit-scrollbar { width: 6px; }
+        .console-body::-webkit-scrollbar-track { background: transparent; }
+        .console-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        
+        .cursor-blink::after { content: '▋'; color: var(--accent); animation: blink 1s infinite; }
+        
+        /* Login */
+        .login-container { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 20px; }
+        .btn-login { background: white; color: black; padding: 14px 30px; border-radius: 30px; font-weight: 600; border: none; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+        .btn-login:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
 
-        .status-footer { margin-top: 10px; font-size: 0.8rem; color: var(--text-secondary); text-align: center; }
-        .error-msg { color: var(--danger); }
-
-        /* Loading Spinner */
-        .spinner { border: 3px solid var(--bg-color); border-top: 3px solid var(--accent-primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 8px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Login Screen */
-        .login-center { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; text-align: center; }
-        .btn-login { padding: 16px 40px; background: var(--accent-gradient); border: none; border-radius: 10px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 20px; }
+        /* Mobile */
+        @media (max-width: 640px) {
+            .stats-grid { grid-template-columns: 1fr; gap: 12px; }
+            .header { flex-direction: column; gap: 16px; align-items: flex-start; }
+        }
     </style>
 </head>
 <body>
 
-<div class="app-shell" id="app">
-    <!-- Content wordt hier geladen -->
-</div>
+<div class="shell" id="app"></div>
 
 <script>
-    // --- CONFIGURATIE ---
+    // --- CORE CONFIG ---
     const BASE_URL = "https://gen.pollinations.ai";
     const currentUrl = window.location.href.split('#')[0];
-    
-    // Vraag om specifieke rechten: balance (saldo), usage (gebruik), profile (account)
     const AUTH_URL = `https://enter.pollinations.ai/authorize?redirect_url=${encodeURIComponent(currentUrl)}&permissions=profile,balance,usage`;
     
-    const appDiv = document.getElementById('app');
-    let API_KEY = null;
+    const app = document.getElementById('app');
+    let STATE = { key: null, balance: 0, sessionCost: 0, models: [], selectedModel: null };
+
+    // --- AUTH FLOW ---
+    const hash = new URLSearchParams(window.location.hash.substring(1));
+    const key = hash.get('api_key');
     
-    // State voor live data
-    let state = {
-        balance: 0,
-        sessionCost: 0,
-        isLoading: false
-    };
-
-    // --- AUTH LOGICA ---
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const incomingKey = hashParams.get('api_key');
-
-    if (incomingKey) {
-        localStorage.setItem('pollinations_api_key', incomingKey);
+    if (key) {
+        localStorage.setItem('pollen_key', key);
         window.history.replaceState({}, document.title, window.location.pathname);
         location.reload();
     } else {
-        const storedKey = localStorage.getItem('pollinations_api_key');
-        if (storedKey) {
-            API_KEY = storedKey;
-            initApp();
-        } else {
-            showLogin();
-        }
+        const storedKey = localStorage.getItem('pollen_key');
+        if (storedKey) { STATE.key = storedKey; initApp(); } 
+        else { renderLogin(); }
     }
 
-    function showLogin() {
-        appDiv.innerHTML = `
-            <div class="login-center">
-                <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Pollinations AI</h1>
-                <p style="color: var(--text-secondary); max-width: 400px;">
-                    Verbind je account om te beginnen. Je krijgt direct inzicht in je saldo en gebruik.
-                </p>
-                <button class="btn-login" onclick="window.location.href='${AUTH_URL}'">Verbind Account</button>
+    function renderLogin() {
+        app.innerHTML = `
+            <div class="login-container">
+                <div style="font-size: 3rem; margin-bottom: 10px;">🧬</div>
+                <h1 style="font-weight: 700; font-size: 2rem; margin-bottom: 8px;">Pollinations AI</h1>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">Connect to access the Smart Console</p>
+                <button class="btn-login" onclick="window.location.href='${AUTH_URL}'">Connect Account</button>
             </div>
         `;
     }
 
-    function logout() {
-        localStorage.removeItem('pollinations_api_key');
-        location.reload();
-    }
+    function logout() { localStorage.removeItem('pollen_key'); location.reload(); }
 
-    // --- APP INITIALISATIE ---
+    // --- INIT & DATA FETCH ---
     async function initApp() {
-        renderUI();
-        await updateDashboard(); // Haal saldo en usage direct op
-    }
-
-    function renderUI() {
-        appDiv.innerHTML = `
-            <!-- Header -->
-            <div class="header">
-                <div class="logo">Pollinations Dashboard</div>
-                <div class="user-info">
-                    <span id="status-text">Verbonden</span>
-                    <button class="btn-logout" onclick="logout()">Ontkoppelen</button>
-                </div>
-            </div>
-
-            <!-- Dashboard Stats -->
-            <div class="dashboard-grid">
-                <div class="card">
-                    <div class="card-label">Beschikbaar Saldo</div>
-                    <div class="card-value" id="ui-balance">...</div>
-                    <div class="stat-small">Pollen Credits</div>
-                </div>
-                <div class="card">
-                    <div class="card-label">Gebruik Deze Sessie</div>
-                    <div class="card-value" id="ui-session-cost" style="color: var(--warning);">0</div>
-                    <div class="stat-small">Pollen verbruikt</div>
-                </div>
-                <!-- Visual Usage Bar (Full Width) -->
-                <div class="card full-width">
-                    <div class="card-label">Status Overzicht</div>
-                    <div class="progress-container">
-                        <div class="progress-bar" id="ui-progress"></div>
-                    </div>
-                    <div class="stat-small" id="ui-stats-text">Laden...</div>
-                </div>
-            </div>
-
-            <!-- Input Area -->
-            <div class="input-section">
-                <div class="controls-row">
-                    <select id="modelSelect">
-                        <option value="openai">OpenAI GPT-5 Mini (Snel)</option>
-                        <option value="openai-fast">OpenAI Nano (Snellste)</option>
-                        <option value="gemini-search">Gemini 2.5 Flash (Web Search)</option>
-                        <option value="perplexity-fast">Perplexity Sonar (Web Search)</option>
-                        <option value="mistral">Mistral Small 3.2</option>
-                    </select>
-                </div>
-                <textarea id="promptInput" placeholder="Typ je vraag of opdracht hier..."></textarea>
-                <button id="genBtn" class="btn-generate" onclick="startGeneration()">Genereer Antwoord</button>
-            </div>
-
-            <!-- Output Area -->
-            <div class="output-container">
-                <div class="output-text" id="outputArea">Je antwoord verschijnt hier...</div>
-            </div>
-            
-            <div class="status-footer" id="footer-status">Klaar.</div>
-        `;
-    }
-
-    // --- DATA FUNCTIES ---
-    
-    // Haal saldo en update UI
-    async function updateDashboard() {
-        if (!API_KEY) return;
-        const balanceEl = document.getElementById('ui-balance');
-        const statsEl = document.getElementById('ui-stats-text');
-        const progressEl = document.getElementById('ui-progress');
-
+        renderSkeleton();
         try {
-            // 1. Huidig saldo ophalen
-            const res = await fetch(`${BASE_URL}/account/balance`, {
-                headers: { 'Authorization': `Bearer ${API_KEY}` }
-            });
-            
-            if (res.ok) {
-                const data = await res.json();
-                // API geeft ofwel een nummer of object {balance: nummer}
-                state.balance = (typeof data === 'object' && data.balance !== undefined) ? data.balance : data;
-                
-                // UI Update
-                balanceEl.innerText = state.balance.toLocaleString();
-                
-                // Visuele logica voor de balk (we simuleren een limiet van 1000 voor demo, of passen kleur aan)
-                // Als we geen limiet weten, maken we de balk 100% groen als er saldo is.
-                const healthPercent = state.balance > 0 ? 100 : 0;
-                progressEl.style.width = Math.min(100, healthPercent) + '%';
-                
-                if (state.balance < 50) progressEl.className = 'progress-bar low';
-                else if (state.balance < 200) progressEl.className = 'progress-bar medium';
-                else progressEl.className = 'progress-bar';
+            // Fetch all data in parallel for speed
+            const [balanceRes, modelsRes] = await Promise.all([
+                fetch(`${BASE_URL}/account/balance`, { headers: { 'Authorization': `Bearer ${STATE.key}` }}),
+                fetch(`${BASE_URL}/text/models`) // Public endpoint
+            ]);
 
-                statsEl.innerText = `Saldo: ${state.balance.toLocaleString()} Pollen beschikbaar.`;
-            } else {
-                balanceEl.innerText = "Fout";
-                statsEl.innerText = "Kon saldo niet ophalen.";
+            if (balanceRes.ok) {
+                const data = await balanceRes.json();
+                STATE.balance = (typeof data === 'object' && data.balance !== undefined) ? data.balance : data;
             }
+
+            if (modelsRes.ok) {
+                STATE.models = await modelsRes.json();
+                // Sort models: Put "search" models first, then others
+                STATE.models.sort((a, b) => {
+                    const aSearch = a.capabilities?.search ? -1 : 1;
+                    const bSearch = b.capabilities?.search ? -1 : 1;
+                    return aSearch - bSearch;
+                });
+                STATE.selectedModel = STATE.models[0]?.model || 'openai';
+            }
+            
+            renderApp();
         } catch (e) {
             console.error(e);
+            app.innerHTML = `<div class="card"><h3>Connection Error</h3><p>Could not fetch initial data.</p><button onclick="logout()">Retry Login</button></div>`;
         }
     }
 
-    // --- GENERATIE LOGICA ---
+    // --- RENDER FUNCTIONS ---
+
+    function renderSkeleton() {
+        app.innerHTML = `<div class="card"><div class="spinner" style="margin: 40px auto;"></div></div>`;
+    }
+
+    function renderApp() {
+        app.innerHTML = `
+        <div class="card" style="animation-duration: 0.3s">
+            <div class="header">
+                <div class="logo"><div class="logo-dot"></div>Pollinations Console</div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="status-badge" id="status-badge">
+                        <div style="width:6px;height:6px;background:currentColor;border-radius:50%;"></div>
+                        <span>Connected</span>
+                    </div>
+                    <button class="selector-refresh" onclick="logout()" style="color: var(--text-muted); font-size: 0.8rem; padding: 4px;">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-grid" style="animation-delay: 0.1s">
+            <div class="stat-box">
+                <span class="stat-label">Balance</span>
+                <span class="stat-value balance" id="ui-balance">${STATE.balance.toLocaleString()}</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Session Usage</span>
+                <span class="stat-value used" id="ui-used">${STATE.sessionCost.toLocaleString()}</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">Models Loaded</span>
+                <span class="stat-value">${STATE.models.length}</span>
+            </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="card" style="animation-delay: 0.2s">
+            <div class="model-selector">
+                <div class="selector-header">
+                    <span class="selector-label">Model Engine</span>
+                    <button class="selector-refresh" onclick="initApp()">↻ Refresh Models</button>
+                </div>
+                <select id="model-select" onchange="updateModelTags()">
+                    ${STATE.models.map(m => `
+                        <option value="${m.model}" ${m.model === STATE.selectedModel ? 'selected' : ''}>
+                            ${m.name || m.model} ${m.capabilities?.search ? '🌐' : ''} ${m.paid_only ? '⭐' : ''}
+                        </option>
+                    `).join('')}
+                </select>
+                <div class="model-tags" id="model-tags"></div>
+            </div>
+
+            <div class="input-area">
+                <textarea id="prompt-input" placeholder="Ask anything... The console will fetch live data if needed."></textarea>
+                <button id="gen-btn" class="btn-generate" onclick="startGeneration()">
+                    <span>Generate Response</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Output Console -->
+        <div class="card" style="animation-delay: 0.3s; padding: 0; overflow: hidden;">
+            <div class="console-window">
+                <div class="console-header">
+                    <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+                    <span style="margin-left: 10px; font-size: 0.75rem; color: var(--text-muted);">output.log</span>
+                </div>
+                <div class="console-body" id="output-area" style="color: var(--text-muted)">
+                    <span style="opacity: 0.5">// System ready. Awaiting input...</span>
+                </div>
+            </div>
+        </div>
+        `;
+        updateModelTags(); // Set initial tags
+    }
+
+    // Updates the small badges below the select box
+    function updateModelTags() {
+        const modelId = document.getElementById('model-select').value;
+        const modelData = STATE.models.find(m => m.model === modelId);
+        const tagsContainer = document.getElementById('model-tags');
+        
+        if (!modelData || !tagsContainer) return;
+
+        let tags = [];
+        if (modelData.capabilities?.search) tags.push('<span class="tag search">Web Search</span>');
+        if (modelData.capabilities?.tools) tags.push('<span class="tag tools">Function Calling</span>');
+        if (modelData.capabilities?.code_exec) tags.push('<span class="tag code">Code Execution</span>');
+        if (modelData.paid_only) tags.push('<span class="tag paid">Premium</span>');
+        
+        tagsContainer.innerHTML = tags.join('');
+    }
+
+    // --- GENERATION LOGIC ---
     async function startGeneration() {
-        const prompt = document.getElementById('promptInput').value;
-        const model = document.getElementById('modelSelect').value;
-        const outputArea = document.getElementById('outputArea');
-        const btn = document.getElementById('genBtn');
-        const footerStatus = document.getElementById('footer-status');
+        const prompt = document.getElementById('prompt-input').value;
+        const model = document.getElementById('model-select').value;
+        const output = document.getElementById('output-area');
+        const btn = document.getElementById('gen-btn');
 
         if (!prompt) return;
 
         // UI Lock
         btn.disabled = true;
-        btn.innerHTML = '<div class="spinner"></div> Genereren...';
-        outputArea.className = 'output-text output-cursor';
-        outputArea.textContent = '';
-        footerStatus.innerText = "Bezig met verbinden...";
-        state.isLoading = true;
+        btn.innerHTML = `<div class="spinner"></div><span>Processing...</span>`;
+        output.className = 'console-body cursor-blink';
+        output.innerHTML = '';
+
+        const startBalance = STATE.balance;
 
         try {
-            const startBalance = state.balance;
-
-            const response = await fetch(`${BASE_URL}/v1/chat/completions`, {
-                method: "POST",
+            const res = await fetch(`${BASE_URL}/v1/chat/completions`, {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${API_KEY}`
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${STATE.key}`
                 },
                 body: JSON.stringify({
                     model: model,
-                    messages: [{ role: "user", content: prompt }],
+                    messages: [{ role: 'user', content: prompt }],
                     stream: true
                 })
             });
 
-            if (!response.ok) {
-                const err = await response.json();
-                throw new Error(err.error?.message || `HTTP ${response.status}`);
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error?.message || `Error ${res.status}`);
             }
 
-            // Streaming Reader
-            const reader = response.body.getReader();
+            // Stream Handling
+            const reader = res.body.getReader();
             const decoder = new TextDecoder();
-            let buffer = "";
-
-            footerStatus.innerText = "Streamen... even wachten op data...";
+            let buffer = '';
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
 
                 buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split("\n");
+                const lines = buffer.split('\n');
                 buffer = lines.pop();
 
                 for (const line of lines) {
-                    if (line.startsWith("data: ")) {
-                        const jsonStr = line.slice(6);
-                        if (jsonStr === "[DONE]") continue;
-
+                    if (line.startsWith('data: ')) {
+                        const json = line.slice(6);
+                        if (json === '[DONE]') continue;
                         try {
-                            const json = JSON.parse(jsonStr);
-                            const content = json.choices?.[0]?.delta?.content;
+                            const data = JSON.parse(json);
+                            const content = data.choices?.[0]?.delta?.content;
                             if (content) {
-                                outputArea.textContent += content;
-                                outputArea.scrollTop = outputArea.scrollHeight; // Auto scroll
+                                output.textContent += content;
+                                output.scrollTop = output.scrollHeight;
                             }
-                        } catch (e) { /* Ignore chunk parse errors */ }
+                        } catch (e) { /* ignore parse errors */ }
                     }
                 }
             }
 
             // Finish
-            footerStatus.innerText = "Klaar. Saldo wordt bijgewerkt...";
-            outputArea.className = 'output-text'; // Cursor weg
+            output.className = 'console-body'; // Remove cursor
             
-            // Update Dashboard (zie de daling)
-            await updateDashboard();
+            // Update Stats
+            await updateBalance();
             
-            // Bereken sessie kosten (indicatief)
-            const cost = startBalance - state.balance;
+            const cost = startBalance - STATE.balance;
             if (cost > 0) {
-                state.sessionCost += cost;
-                document.getElementById('ui-session-cost').innerText = state.sessionCost.toLocaleString();
-                footerStatus.innerText = `Klaar! Kosten: ${cost} Pollen.`;
-            } else {
-                footerStatus.innerText = "Klaar!";
+                STATE.sessionCost += cost;
+                document.getElementById('ui-used').innerText = STATE.sessionCost.toLocaleString();
             }
 
-        } catch (error) {
-            console.error(error);
-            outputArea.className = 'output-text';
-            outputArea.innerHTML = `<span class="error-msg">Fout: ${error.message}</span>`;
-            
-            if (error.message.includes("402")) {
-                outputArea.innerHTML += "\n\n❌ Saldo onvoldoende. Laad je account op.";
-                // Forceer update om 0 te tonen
-                state.balance = 0;
-                updateDashboard();
-            } else if (error.message.includes("401")) {
-                outputArea.innerHTML += "\n\n🔑 Key ongeldig. Log opnieuw in.";
-                setTimeout(logout, 2000);
-            }
+        } catch (err) {
+            output.innerHTML = `<span style="color: var(--danger)">[ERROR] ${err.message}</span>`;
+            if (err.message.includes('401')) setTimeout(logout, 2000);
         } finally {
             btn.disabled = false;
-            btn.innerText = "Genereer Antwoord";
-            state.isLoading = false;
+            btn.innerHTML = `<span>Generate Response</span>`;
         }
+    }
+
+    async function updateBalance() {
+        try {
+            const res = await fetch(`${BASE_URL}/account/balance`, {
+                headers: { 'Authorization': `Bearer ${STATE.key}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                STATE.balance = (typeof data === 'object' && data.balance !== undefined) ? data.balance : data;
+                const el = document.getElementById('ui-balance');
+                el.innerText = STATE.balance.toLocaleString();
+                el.style.color = STATE.balance < 100 ? 'var(--danger)' : 'var(--success)';
+            }
+        } catch (e) {}
     }
 </script>
 </body>
