@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pollinations AI Text Gen</title>
+    <title>Pollinations AI + Credits</title>
     <style>
         :root {
             --bg-color: #0f0f0f;
             --text-color: #e0e0e0;
-            --accent-color: #d946ef; /* Magenta/Paars thema passend bij Pollinations */
+            --accent-color: #d946ef;
+            --search-color: #22d3ee;
             --card-bg: #1a1a1a;
             --input-bg: #262626;
             --border-color: #333;
+            --success-color: #4ade80;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -30,7 +32,7 @@
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.6);
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             border: 1px solid var(--border-color);
         }
         h1 {
@@ -38,24 +40,35 @@
             color: var(--accent-color);
             font-size: 1.8rem;
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.5rem;
         }
         
-        /* Loader animatie */
-        .loader-container {
-            text-align: center;
-            padding: 40px;
+        /* Status Panel Styling */
+        .status-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--input-bg);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
         }
-        .loader {
-            border: 4px solid var(--input-bg);
-            border-top: 4px solid var(--accent-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px auto;
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.9em;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .status-label { color: #888; font-size: 0.8em; margin-bottom: 4px; }
+        .status-value { font-weight: bold; color: var(--success-color); font-size: 1.1em; }
+        .status-key { font-family: monospace; color: #aaa; font-size: 0.8em; }
+        .logout-btn { 
+            background: transparent; color: #f87171; border: 1px solid #f87171; 
+            padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em;
+            width: auto;
+        }
+        .logout-btn:hover { background: rgba(248, 113, 113, 0.1); }
 
         input, textarea, select {
             width: 100%;
@@ -67,17 +80,10 @@
             color: var(--text-color);
             box-sizing: border-box;
             font-size: 16px;
-            transition: border-color 0.3s;
         }
-        input:focus, textarea:focus, select:focus {
-            border-color: var(--accent-color);
-            outline: none;
-        }
-        textarea {
-            height: 140px;
-            resize: vertical;
-            font-family: inherit;
-        }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent-color); outline: none; }
+        textarea { height: 100px; resize: vertical; font-family: inherit; }
+        
         button {
             background-color: var(--accent-color);
             color: white;
@@ -87,18 +93,17 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            transition: transform 0.1s, background-color 0.3s;
             width: 100%;
+            transition: opacity 0.2s;
         }
-        button:hover { background-color: #c026d3; transform: translateY(-1px); }
-        button:active { transform: translateY(0); }
-        button:disabled { background-color: #555; cursor: not-allowed; transform: none; }
+        button:hover { opacity: 0.9; }
+        button:disabled { background-color: #444; cursor: not-allowed; color: #aaa; }
         
         .output-box {
             margin-top: 20px;
             text-align: left;
             background: var(--input-bg);
-            padding: 16px;
+            padding: 18px;
             border-radius: 8px;
             white-space: pre-wrap;
             font-family: 'Courier New', Courier, monospace;
@@ -107,140 +112,122 @@
             max-height: 400px;
             overflow-y: auto;
             border: 1px solid var(--border-color);
+            line-height: 1.6;
         }
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85em;
-            color: #888;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .status-dot {
-            height: 8px;
-            width: 8px;
-            background-color: #4ade80;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 6px;
-        }
-        .link-btn {
-            background: transparent;
-            color: var(--accent-color);
-            padding: 0;
-            display: inline;
-            font-size: 0.9em;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        .link-btn:hover { background: transparent; }
     </style>
 </head>
 <body>
 
-<div class="container" id="app">
-    <!-- Inhoud wordt hier dynamisch geladen -->
-</div>
+<div class="container" id="app"></div>
 
 <script>
-    // --- CONFIGURATIE (Gebaseerd op BYOP Docs) ---
-    
+    // --- CONFIGURATIE ---
     const BASE_URL = "https://gen.pollinations.ai";
+    const currentUrl = window.location.href.split('#')[0];
     
-    // STAP 1: De Authorize URL
-    // Gebruikt 'location.href' als redirect_url zodat de gebruiker terugkomt op deze pagina.
-    // De key komt terug in de URL hash: #api_key=sk_...
-    const getAuthUrl = () => {
-        const params = new URLSearchParams({
-            redirect_url: location.href.split('#')[0], // Schoon adres zonder hash
-            // Optioneel: Voeg hier je eigen publishable key (pk_) toe als je de app naam wilt laten zien.
-            // app_key: 'pk_JOUW_KEY_HIER' 
-        });
-        return `https://enter.pollinations.ai/authorize?${params}`;
-    };
-
+    // We voegen 'permissions=profile,balance,usage' toe om de credits te kunnen lezen
+    const AUTH_URL = `https://enter.pollinations.ai/authorize?redirect_url=${encodeURIComponent(currentUrl)}&permissions=profile,balance,usage`;
+    
     const appDiv = document.getElementById('app');
+    let currentKey = null; // Huidige key opslaan in variabele
 
-    // --- LOGICA ---
-
-    // 1. Checken op API Key in URL Hash (#api_key=...)
-    // Volgens docs: "user comes back with a key in the URL fragment"
+    // --- AUTH LOGICA ---
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const incomingKey = hashParams.get('api_key');
 
     if (incomingKey) {
-        // Key gevonden! Opslaan in LocalStorage.
         localStorage.setItem('pollinations_api_key', incomingKey);
-        // Hash verwijderen van URL voor privacy (zodat het niet in de historie staat)
         window.history.replaceState({}, document.title, window.location.pathname);
-        // Pagina herladen om de key te activeren
         location.reload();
     } else {
-        // 2. Checken of we al een opgeslagen key hebben
         const storedKey = localStorage.getItem('pollinations_api_key');
-
-        if (!storedKey) {
-            // Geen key -> Start de Auth Flow
-            showAuthScreen();
-        } else {
-            // Key aanwezig -> Start de App
-            showApp(storedKey);
-        }
+        currentKey = storedKey;
+        if (!storedKey) { showAuthScreen(); } else { initApp(storedKey); }
     }
 
     // --- FUNCTIES ---
-
     function showAuthScreen() {
-        const authUrl = getAuthUrl();
         appDiv.innerHTML = `
-            <h1>Welkom</h1>
-            <p style="text-align:center; margin-bottom: 20px;">
-                Om deze app te gebruiken, heb je een Pollinations API key nodig.<br>
-                Klik op de knop om in te loggen of een key aan te maken.
+            <h1>Start</h1>
+            <p style="text-align:center; margin-bottom: 20px; color:#ccc;">
+                Log in om je saldo te zien en AI te gebruiken.
             </p>
-            <button onclick="window.location.href='${authUrl}'">
-                Verbind met Pollinations
-            </button>
-            <p style="font-size: 0.8em; color: #666; text-align: center; margin-top: 15px;">
-                Je wordt doorgestuurd naar een beveiligde login pagina.
-            </p>
+            <button onclick="window.location.href='${AUTH_URL}'">Verbind met Pollinations</button>
         `;
     }
 
-    function showApp(key) {
-        // Toon key status (eerste en laatste 4 tekens)
-        const keyPreview = key.length > 8 
-            ? `${key.substring(0, 4)}...${key.substring(key.length - 4)}` 
-            : "Key geladen";
+    // Initialiseer app en haal direct saldo op
+    async function initApp(key) {
+        showAppSkeleton(key);
+        await fetchBalance(); // Haal saldo op bij start
+    }
 
+    function showAppSkeleton(key) {
+        const keyPreview = key.length > 8 ? `${key.substring(0, 4)}...${key.substring(key.length - 4)}` : "...";
         appDiv.innerHTML = `
-            <h1>AI Text Generator</h1>
-            <div class="status-bar">
-                <span><span class="status-dot"></span>Verbonden</span>
-                <span>Key: ${keyPreview} 
-                    <button class="link-btn" onclick="logout()" style="margin-left: 5px;">(Ontkoppelen)</button>
-                </span>
-            </div>
+            <h1>AI Dashboard</h1>
             
+            <!-- STATUS PANEL -->
+            <div class="status-panel">
+                <div class="status-item">
+                    <span class="status-label">Saldo (Pollen)</span>
+                    <span class="status-value" id="balanceDisplay">...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">API Key</span>
+                    <span class="status-key">${keyPreview}</span>
+                </div>
+                <div class="status-item">
+                    <button class="logout-btn" onclick="logout()">Ontkoppel</button>
+                </div>
+            </div>
+
             <label for="modelSelect">Model</label>
             <select id="modelSelect">
-                <option value="openai">OpenAI (GPT-5 Mini - Snel & Goedkoop)</option>
-                <option value="openai-fast">OpenAI Fast (Nano - Snelste)</option>
-                <option value="openai-large">OpenAI Large (GPT-5.2 - Krachtig)</option>
+                <option value="gemini-search">Gemini 2.5 Flash (Web Search) 🌐</option>
+                <option value="perplexity-fast">Perplexity Sonar (Web Search) 🌐</option>
+                <option value="openai">OpenAI (GPT-5 Mini)</option>
+                <option value="openai-fast">OpenAI Fast (Nano)</option>
                 <option value="mistral">Mistral Small 3.2</option>
-                <option value="claude-fast">Claude Haiku 4.5</option>
-                <option value="gemini-fast">Gemini 2.5 Flash Lite</option>
-                <option value="deepseek">DeepSeek V3.2</option>
             </select>
 
             <label for="promptInput">Prompt</label>
-            <textarea id="promptInput" placeholder="Typ hier je bericht..."></textarea>
+            <textarea id="promptInput" placeholder="Typ je vraag..."></textarea>
             
-            <button id="genBtn" onclick="generateText()">Genereer Tekst</button>
+            <button id="genBtn" onclick="startStream()">Genereer</button>
             
-            <div class="output-box" id="output">De output verschijnt hier...</div>
+            <div class="output-box" id="output">Wachten op input...</div>
         `;
+    }
+
+    // Functie om saldo op te halen
+    async function fetchBalance() {
+        const balanceEl = document.getElementById('balanceDisplay');
+        if (!balanceEl) return;
+
+        try {
+            const res = await fetch(`${BASE_URL}/account/balance`, {
+                headers: { 'Authorization': `Bearer ${currentKey}` }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                // Het API antwoord kan een object zijn {balance: 100} of direct een nummer
+                // We vangen beide af
+                const amount = (typeof data === 'object' && data.balance !== undefined) ? data.balance : data;
+                balanceEl.innerText = amount.toLocaleString();
+                
+                // Kleur aanpassen als laag
+                if (amount < 100) balanceEl.style.color = "#f87171"; 
+                else balanceEl.style.color = "#4ade80";
+            } else {
+                balanceEl.innerText = "Error";
+                balanceEl.style.color = "#f87171";
+            }
+        } catch (e) {
+            console.error("Kon saldo niet ophalen", e);
+            balanceEl.innerText = "---";
+        }
     }
 
     function logout() {
@@ -248,69 +235,81 @@
         location.reload();
     }
 
-    async function generateText() {
-        const key = localStorage.getItem('pollinations_api_key');
+    // --- STREAMING LOGICA ---
+    async function startStream() {
         const prompt = document.getElementById('promptInput').value;
         const model = document.getElementById('modelSelect').value;
         const outputDiv = document.getElementById('output');
         const btn = document.getElementById('genBtn');
 
-        if (!prompt) {
-            alert("Voer eerst een prompt in.");
-            return;
-        }
+        if (!prompt) { alert("Vul eerst een prompt in."); return; }
 
-        // UI updaten (loading state)
         btn.disabled = true;
-        btn.innerText = "Genereren...";
-        outputDiv.innerText = "Wachten op AI...";
-
+        btn.innerText = "Bezig...";
+        outputDiv.textContent = ""; 
+        
         try {
-            // POST Request naar /v1/chat/completions
             const response = await fetch(`${BASE_URL}/v1/chat/completions`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${key}` // Auth header
+                    "Authorization": `Bearer ${currentKey}`
                 },
                 body: JSON.stringify({
                     model: model,
-                    messages: [
-                        { role: "user", content: prompt }
-                    ],
-                    stream: false
+                    messages: [{ role: "user", content: prompt }],
+                    stream: true
                 })
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || `HTTP error ${response.status}`);
+                const errData = await response.json();
+                throw new Error(errData.error?.message || `Server error ${response.status}`);
             }
 
-            const data = await response.json();
-            
-            // Extract content uit OpenAI-formaat
-            if (data.choices && data.choices.length > 0) {
-                const content = data.choices[0].message.content;
-                outputDiv.innerText = content;
-            } else {
-                outputDiv.innerText = "Geen output ontvangen.";
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split("\n");
+                buffer = lines.pop(); 
+
+                for (const line of lines) {
+                    if (line.startsWith("data: ")) {
+                        const data = line.slice(6);
+                        if (data === "[DONE]") continue;
+                        try {
+                            const json = JSON.parse(data);
+                            const content = json.choices?.[0]?.delta?.content;
+                            if (content) {
+                                outputDiv.textContent += content;
+                                outputDiv.scrollTop = outputDiv.scrollHeight;
+                            }
+                        } catch (e) { /* Ignore */ }
+                    }
+                }
             }
 
         } catch (error) {
-            console.error(error);
-            outputDiv.innerText = `Fout: ${error.message}`;
-            // Als key ongeldig is (401), automatisch uitloggen
-            if (error.message.includes("401") || error.message.includes("Invalid")) {
-                outputDiv.innerText += "\n\nSessie verlopen. Log opnieuw in...";
-                setTimeout(logout, 2000);
+            console.error("Error:", error);
+            outputDiv.textContent = `Fout: ${error.message}`;
+            if (error.message.includes("402")) {
+                outputDiv.textContent += "\n\n❌ SALDO TE LAAG. Koop meer pollen.";
+                document.getElementById('balanceDisplay').innerText = "0";
+                document.getElementById('balanceDisplay').style.color = "#f87171";
             }
         } finally {
             btn.disabled = false;
-            btn.innerText = "Genereer Tekst";
+            btn.innerText = "Genereer";
+            // VERVERS SALDO NA ELKE GENERATIE
+            fetchBalance(); 
         }
     }
 </script>
-
 </body>
 </html>
