@@ -253,8 +253,8 @@
                 </div>
                 <select id="model-select" onchange="updateModelTags()">
                     ${STATE.models.map(m => `
-                        <option value="${m.model}" ${m.model === STATE.selectedModel ? 'selected' : ''}>
-                            ${m.name || m.model} ${m.capabilities?.search ? '🌐' : ''} ${m.paid_only ? '⭐' : ''}
+                        <option value="${m.name}" ${m.name === STATE.selectedModel ? 'selected' : ''}>
+                            ${m.name || m.name} ${m.capabilities?.search ? '🌐' : ''} ${m.paid_only ? '⭐' : ''}
                         </option>
                     `).join('')}
                 </select>
@@ -288,7 +288,7 @@
     // Updates the small badges below the select box
     function updateModelTags() {
         const modelId = document.getElementById('model-select').value;
-        const modelData = STATE.models.find(m => m.model === modelId);
+        const modelData = STATE.models.find(m => m.name === modelId);
         const tagsContainer = document.getElementById('model-tags');
         
         if (!modelData || !tagsContainer) return;
