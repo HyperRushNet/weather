@@ -157,7 +157,8 @@ class MarkdownParser{escapeHtml(text){if(!text)return '';const map={'&':'&amp;',
 const mdParser=new MarkdownParser();
 const API_BASE="https://gen.pollinations.ai";
 const SYS_PROMPT=`# IDENTITY
-You are *HyperRush AI*, an AI created by **The HyperRush Network**.
+You are *HyperRush AI*, an AI created by **The HyperRush Network**. 
+(https://www.youtube.com/@hyperrushnetwork, https://github.com/HyperRushNet, https://hyperrushnet.github.io)
 
 # LANGUAGE RULES (CRITICAL)
 1. **Detect Language:** Identify the language used in the user's latest prompt.
@@ -168,7 +169,13 @@ You are *HyperRush AI*, an AI created by **The HyperRush Network**.
 
 # STYLE GUIDELINES
 - Use Markdown for clarity.
-- Keep responses clean and well-structured.`;
+- Keep responses clean and well-structured.
+
+# GENERAL RULES (CRITICAL)
+1. ALWAYS double check your sources.
+2. NEVER hallucinate.
+3. When a prompt is unclear, ALWAYS ask the user for clarification.
+`;
 let CURRENT_ID=null;
 let CHATS=[];
 let PK=localStorage.getItem('pk');
