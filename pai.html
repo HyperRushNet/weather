@@ -269,22 +269,18 @@
 
     function renderMessage(role, content) {
         const isUser = role === 'user';
-        
         if (isUser && chatContainer.children.length > 0) {
             const hr = document.createElement('hr');
             hr.className = 'message-separator';
             chatContainer.appendChild(hr);
         }
-
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${isUser ? 'user' : 'ai'}`;
-        
         if (isUser) {
             msgDiv.innerHTML = `<div class="bubble">${content.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</div>`;
         } else {
             msgDiv.innerHTML = `<div class="markdown-body">${marked.parse(content)}</div>`;
         }
-        
         chatContainer.appendChild(msgDiv);
         chatView.scrollTop = chatView.scrollHeight;
         return msgDiv;
@@ -308,6 +304,7 @@
         renderMessage('user', text);
         
         const aiMsgDiv = renderMessage('assistant', '<div class="loader"><span></span><span></span><span></span></div>');
+        const container = aiMsgDiv.querySelector('.markdown-body') || aiMsgDiv;
         
         try {
             const response = await fetch(`${BASE}/v1/chat/completions`, {
@@ -317,32 +314,40 @@
             });
 
             const reader = response.body.getReader();
+            const decoder = new TextDecoder();
             let fullText = "";
+            let streamBuffer = ""; 
+
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                const chunk = new TextDecoder().decode(value);
-                const lines = chunk.split('\n');
+                
+                streamBuffer += decoder.decode(value, { stream: true });
+                const lines = streamBuffer.split('\n');
+                streamBuffer = lines.pop(); // Houd laatste (onvolledige) deel vast
+
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
                         const data = line.slice(6);
-                        if (data === '[DONE]') continue;
+                        if (data === '[DONE]') break;
                         try {
                             const json = JSON.parse(data);
-                            const content = json.choices[0].delta.content;
+                            const content = json.choices[0].delta?.content;
                             if (content) {
                                 fullText += content;
-                                aiMsgDiv.querySelector('.markdown-body').innerHTML = marked.parse(fullText);
+                                container.innerHTML = marked.parse(fullText);
                                 chatView.scrollTop = chatView.scrollHeight;
                             }
-                        } catch (e) {}
+                        } catch (e) {
+                            // Onvolledige JSON, wordt opgelost door buffer bij volgende chunk
+                        }
                     }
                 }
             }
             chat.messages.push({ role: 'assistant', content: fullText });
             localStorage.setItem('gemini_chats', JSON.stringify(CHATS));
             updateBalance();
-        } catch (e) { aiMsgDiv.innerHTML = "Fout bij verbinding."; }
+        } catch (e) { container.innerHTML = "Fout bij verbinding."; }
     }
 
     init();
