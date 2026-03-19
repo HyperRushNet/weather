@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gemini Workspace</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Roboto:wght@400;500&family=Roboto+Mono&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -16,20 +16,18 @@
             --accent: #8ab4f8;
             --border: #444746;
             --sb-thumb: #3c3d3f;
-            --sb-hover: #48494b;
+            --success: #4ade80; /* Groen voor balance */
+            --warning: #facc15; /* Geel voor usage */
         }
 
         /* --- CUSTOM SCROLLBARS --- */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--sb-thumb); border-radius: 10px; border: 2px solid var(--bg-color); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--sb-hover); }
-        
-        /* Voor Firefox */
+        ::-webkit-scrollbar-thumb:hover { background: #48494b; }
         * { scrollbar-width: thin; scrollbar-color: var(--sb-thumb) transparent; }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
             background-color: var(--bg-color);
             color: var(--txt-primary);
@@ -40,19 +38,33 @@
             overflow: hidden;
         }
 
-        /* Top Bar */
+        /* Header / Top Bar */
         .header {
-            padding: 16px 24px;
+            padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: rgba(19, 19, 20, 0.8);
+            backdrop-filter: blur(10px);
             z-index: 10;
         }
-        .logo { font-size: 20px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .logo { font-size: 20px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
         .logo span { background: linear-gradient(45deg, #4285f4, #9b72cb, #d96570); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
-        .stats { font-size: 13px; color: var(--txt-secondary); background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 12px; }
+        
+        .wallet-info { display: flex; gap: 20px; align-items: center; }
+        .stat-item { font-size: 13px; font-weight: 500; display: flex; flex-direction: column; align-items: flex-end; }
+        .stat-label { font-size: 10px; text-transform: uppercase; color: var(--txt-secondary); letter-spacing: 0.5px; }
+        .val-balance { color: var(--success); }
+        .val-used { color: var(--warning); }
 
-        /* Main Chat Area */
+        .btn-logout { 
+            background: none; border: 1px solid var(--border); color: var(--txt-secondary); 
+            padding: 4px 12px; border-radius: 12px; cursor: pointer; font-size: 11px; margin-left: 10px;
+        }
+        .btn-logout:hover { background: rgba(255,255,255,0.05); color: white; }
+
+        /* Chat Area */
         .chat-wrapper {
             flex: 1;
             overflow-y: auto;
@@ -67,128 +79,98 @@
             display: flex;
             flex-direction: column;
             gap: 32px;
-            padding-bottom: 120px;
+            padding-bottom: 140px;
         }
 
-        .message { display: flex; flex-direction: column; gap: 8px; }
+        .message { display: flex; flex-direction: column; gap: 8px; width: 100%; }
         .user-msg { 
-            align-self: flex-end; 
-            background: #2b2c2f; 
-            padding: 14px 22px; 
-            border-radius: 24px; 
-            max-width: 85%;
-            font-size: 15px;
-            line-height: 1.5;
+            align-self: flex-end; background: #2b2c2f; padding: 14px 22px; 
+            border-radius: 24px; max-width: 85%; font-size: 15px; line-height: 1.5; color: #fff;
         }
-        .ai-msg { align-self: flex-start; line-height: 1.7; font-size: 16px; width: 100%; }
+        .ai-msg { align-self: flex-start; line-height: 1.7; font-size: 16px; }
         
-        /* Markdown Style Fixes */
-        .ai-msg p { margin-bottom: 12px; }
+        /* Markdown rendering */
         .ai-msg code { background: #282a2d; padding: 3px 6px; border-radius: 6px; font-family: 'Roboto Mono', monospace; font-size: 0.9em; color: var(--accent); }
-        .ai-msg pre { 
-            background: #0e0e0e; 
-            padding: 20px; 
-            border-radius: 16px; 
-            overflow-x: auto; 
-            margin: 16px 0; 
-            border: 1px solid var(--border); 
-        }
+        .ai-msg pre { background: #0e0e0e; padding: 20px; border-radius: 16px; overflow-x: auto; margin: 16px 0; border: 1px solid var(--border); }
 
-        /* Input Bar */
+        /* Input Section */
         .input-container {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            padding: 24px 24px 40px 24px;
+            position: fixed; bottom: 0; width: 100%; padding: 20px 24px 40px;
             background: linear-gradient(transparent, var(--bg-color) 40%);
-            display: flex;
-            justify-content: center;
+            display: flex; justify-content: center;
         }
         .input-box {
-            width: 100%;
-            max-width: 800px;
-            background: var(--input-bg);
-            border-radius: 28px;
-            padding: 10px 20px;
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            width: 100%; max-width: 800px; background: var(--input-bg);
+            border-radius: 32px; padding: 10px 24px; display: flex; align-items: flex-end; gap: 12px;
+            border: 1px solid transparent; transition: border 0.3s;
         }
+        .input-box:focus-within { border: 1px solid #5f6368; }
         
         textarea {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: white;
-            font-size: 16px;
-            padding: 12px 4px;
-            resize: none;
-            max-height: 200px;
-            font-family: inherit;
+            flex: 1; background: transparent; border: none; outline: none;
+            color: white; font-size: 16px; padding: 12px 0; resize: none;
+            max-height: 200px; font-family: inherit;
         }
 
-        .send-btn {
-            background: none;
-            border: none;
-            color: var(--accent);
-            cursor: pointer;
-            padding: 10px;
-            border-radius: 50%;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .send-btn:hover:not(:disabled) { background: rgba(138, 180, 248, 0.1); }
-        .send-btn:disabled { opacity: 0.3; cursor: default; }
+        .send-btn { background: none; border: none; color: var(--accent); cursor: pointer; padding: 10px; transition: opacity 0.2s; }
+        .send-btn:disabled { opacity: 0.2; }
 
+        /* Login */
         #login-overlay {
             position: fixed; inset: 0; background: var(--bg-color); z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        .loading-dots { padding: 10px; display: flex; gap: 6px; }
-        .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 1.2s infinite ease-in-out; }
+        /* Loading Animation */
+        .dots { display: flex; gap: 4px; padding: 10px 0; }
+        .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 1.4s infinite; }
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes pulse { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.1); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.1); } }
     </style>
 </head>
 <body>
 
 <div id="login-overlay" style="display: none;">
-    <h1 style="margin-bottom: 32px; font-weight: 500;">Gemini <span>◉</span></h1>
-    <button onclick="login()" style="background: var(--accent); color: #000; border: none; padding: 14px 32px; border-radius: 28px; font-weight: 600; cursor: pointer; font-size: 16px;">
+    <h1 style="margin-bottom: 30px;">Gemini <span>◉</span></h1>
+    <button onclick="login()" style="background: var(--accent); color: #000; border: none; padding: 14px 30px; border-radius: 30px; font-weight: 600; cursor: pointer;">
         Verbinden met Pollinations
     </button>
 </div>
 
 <div class="header">
-    <div class="logo" onclick="location.reload()"><span>◉</span> Gemini</div>
-    <div class="stats" id="ui-info">Saldo bijwerken...</div>
+    <div class="logo"><span>◉</span> Gemini</div>
+    <div class="wallet-info">
+        <div class="stat-item">
+            <span class="stat-label">Gebruik</span>
+            <span id="ui-used" class="val-used">0</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Saldo</span>
+            <span id="ui-balance" class="val-balance">...</span>
+        </div>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
 </div>
 
-<div class="chat-wrapper" id="scroll-target">
+<div class="chat-wrapper" id="scroll-box">
     <div id="chat-content">
-        <div class="ai-msg">Hallo! Ik ben je persoonlijke Gemini assistent. Hoe kan ik je vandaag helpen?</div>
+        <div class="ai-msg">Hallo! Hoe kan ik je vandaag helpen?</div>
     </div>
 </div>
 
 <div class="input-container">
     <div class="input-box">
         <textarea id="prompt" placeholder="Stel een vraag..." rows="1"></textarea>
-        <button class="send-btn" id="send-btn" onclick="generate()" title="Verstuur">
+        <button class="send-btn" id="send-btn" onclick="generate()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
     </div>
 </div>
 
 <script>
-    const MODEL = "gemini-fast"; 
     const BASE = "https://gen.pollinations.ai";
-    let STATE = { key: localStorage.getItem('pk'), history: [] };
+    let STATE = { key: localStorage.getItem('pk'), balance: 0, used: 0, history: [] };
 
     function init() {
         if (!STATE.key) {
@@ -208,108 +190,95 @@
         const ta = document.getElementById('prompt');
         ta.addEventListener('input', function() {
             this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
+            this.style.height = this.scrollHeight + 'px';
         });
-
-        // Enter = send, Shift+Enter = new line
-        ta.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                generate();
-            }
-        });
+        ta.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generate(); } });
     }
 
     async function updateStatus() {
         try {
-            const res = await fetch(`${BASE}/account/balance`, { 
-                headers: { 'Authorization': `Bearer ${STATE.key}` }
-            });
-            if (!res.ok) throw new Error();
+            const res = await fetch(`${BASE}/account/balance`, { headers: { 'Authorization': `Bearer ${STATE.key}` }});
             const d = await res.json();
+            const newVal = typeof d === 'number' ? d : (d.balance ?? 0);
             
-            // Fix voor verschillende API response formats
-            const balance = (typeof d === 'object' && d !== null) ? (d.balance ?? 0) : d;
+            // Bereken verbruik in deze sessie
+            if (STATE.balance > 0 && newVal < STATE.balance) {
+                STATE.used += (STATE.balance - newVal);
+            }
             
-            document.getElementById('ui-info').innerText = `${Math.floor(balance).toLocaleString()} pollen`;
-        } catch(e) { 
-            document.getElementById('ui-info').innerText = "Verbonden"; 
-        }
+            STATE.balance = newVal;
+            document.getElementById('ui-balance').innerText = Math.floor(STATE.balance).toLocaleString();
+            document.getElementById('ui-used').innerText = Math.floor(STATE.used).toLocaleString();
+        } catch(e) { console.error("Balance fetch failed"); }
     }
 
     async function generate() {
         const input = document.getElementById('prompt');
         const btn = document.getElementById('send-btn');
-        const container = document.getElementById('chat-content');
-        const scrollTarget = document.getElementById('scroll-target');
+        const content = document.getElementById('chat-content');
+        const scrollBox = document.getElementById('scroll-box');
         const text = input.value.trim();
 
         if (!text || btn.disabled) return;
 
-        // User Message
-        container.innerHTML += `<div class="message user-msg">${text}</div>`;
+        content.innerHTML += `<div class="message user-msg">${text}</div>`;
         STATE.history.push({ role: "user", content: text });
         
         input.value = '';
         input.style.height = 'auto';
         btn.disabled = true;
 
-        // AI Placeholder
-        const aiMsgDiv = document.createElement('div');
-        aiMsgDiv.className = 'message ai-msg';
-        aiMsgDiv.innerHTML = '<div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
-        container.appendChild(aiMsgDiv);
-        scrollTarget.scrollTop = scrollTarget.scrollHeight;
+        const aiDiv = document.createElement('div');
+        aiDiv.className = 'message ai-msg';
+        aiDiv.innerHTML = '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+        content.appendChild(aiDiv);
+        scrollBox.scrollTop = scrollBox.scrollHeight;
 
         try {
             const res = await fetch(`${BASE}/v1/chat/completions`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${STATE.key}` },
-                body: JSON.stringify({
-                    model: MODEL,
-                    messages: STATE.history,
-                    stream: true
-                })
+                body: JSON.stringify({ model: "gemini-fast", messages: STATE.history, stream: true })
             });
 
             const reader = res.body.getReader();
             const decoder = new TextDecoder();
-            let fullText = "";
-            aiMsgDiv.innerHTML = ""; 
+            let full = "";
+            aiDiv.innerHTML = "";
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                
                 const chunk = decoder.decode(value);
                 const lines = chunk.split('\n');
-                
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
                         const data = line.slice(6);
                         if (data === '[DONE]') continue;
                         try {
                             const json = JSON.parse(data);
-                            const content = json.choices[0].delta.content || "";
-                            fullText += content;
-                            aiMsgDiv.innerHTML = marked.parse(fullText);
-                            scrollTarget.scrollTop = scrollTarget.scrollHeight;
+                            full += json.choices[0].delta.content || "";
+                            aiDiv.innerHTML = marked.parse(full);
+                            scrollBox.scrollTop = scrollBox.scrollHeight;
                         } catch(e) {}
                     }
                 }
             }
-            STATE.history.push({ role: "assistant", content: fullText });
+            STATE.history.push({ role: "assistant", content: full });
             updateStatus();
         } catch (e) {
-            aiMsgDiv.innerHTML = `<span style="color:#f28b82">Fout bij ophalen van antwoord. Controleer je verbinding.</span>`;
+            aiDiv.innerHTML = "Fout bij verbinding met Gemini.";
         } finally {
             btn.disabled = false;
         }
     }
 
     function login() {
-        window.location.href = `https://enter.pollinations.ai/authorize?redirect_url=${encodeURIComponent(window.location.href)}&permissions=profile,balance,usage`;
+        const REDIRECT = window.location.href.split('#')[0];
+        window.location.href = `https://enter.pollinations.ai/authorize?redirect_url=${encodeURIComponent(REDIRECT)}&permissions=profile,balance,usage`;
     }
+
+    function logout() { localStorage.removeItem('pk'); location.reload(); }
 
     init();
 </script>
