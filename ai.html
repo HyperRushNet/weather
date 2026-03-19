@@ -231,7 +231,6 @@
         .md-body li { margin-bottom: 6px; }
         .md-body ul li::marker { color: var(--accent); }
         
-        /* Task Lists */
         .md-body .task-list-item { list-style: none; margin-left: -24px; }
         .md-body input[type="checkbox"] { 
             appearance: none; -webkit-appearance: none; 
@@ -246,7 +245,6 @@
             content: '✔'; color: #000; font-size: 10px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
         }
         
-        /* Tables */
         .table-wrapper { width: 100%; overflow-x: auto; margin: 16px 0; border: 1px solid var(--border-subtle); border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
         th, td { padding: 10px 14px; border-bottom: 1px solid var(--border-subtle); }
@@ -377,10 +375,6 @@
 </div>
 
 <script>
-    // ==========================================
-    // CUSTOM MARKDOWN PARSER (ROBUST)
-    // ==========================================
-    
     class MarkdownParser {
         escapeHtml(text) {
             if (!text) return '';
@@ -393,7 +387,6 @@
             
             let result = text;
             
-            // 1. Code Blocks
             const codeBlocks = [];
             result = result.replace(/```(\w*)\n([\s\S]*?)(?:```|$)/g, (match, lang, code) => {
                 const index = codeBlocks.length;
@@ -401,7 +394,6 @@
                 return `[[CODEBLOCK${index}]]`;
             });
 
-            // 2. Inline Code
             const inlineCodes = [];
             result = result.replace(/`([^`\n]+)`/g, (match, code) => {
                 const index = inlineCodes.length;
@@ -409,10 +401,8 @@
                 return `[[INLINECODE${index}]]`;
             });
 
-            // 3. Tables
             result = this.parseTables(result);
 
-            // 4. Headers
             result = result
                 .replace(/^###### (.+)$/gm, '<h6>$1</h6>')
                 .replace(/^##### (.+)$/gm, '<h5>$1</h5>')
@@ -421,16 +411,12 @@
                 .replace(/^## (.+)$/gm, '<h2>$1</h2>')
                 .replace(/^# (.+)$/gm, '<h1>$1</h1>');
 
-            // 5. Blockquotes
             result = this.parseBlockquotes(result);
 
-            // 6. Horizontal Rule
             result = result.replace(/^(---|\*\*\*|___)$/gm, '<hr style="border-color:var(--border-subtle);">');
 
-            // 7. Lists (including Task Lists)
             result = this.parseLists(result);
 
-            // 8. Bold & Italic
             result = result
                 .replace(/\*\*\*([^*\n]+)\*\*\*/g, '<strong><em>$1</em></strong>')
                 .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
@@ -438,18 +424,14 @@
                 .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
                 .replace(/_([^_\n]+)_/g, '<em>$1</em>');
 
-            // 9. Strikethrough
             result = result.replace(/~~([^~\n]+)~~/g, '<del>$1</del>');
 
-            // 10. Links & Images
             result = result
                 .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:8px;margin:8px 0;">')
                 .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
 
-            // 11. Paragraphs
             result = this.parseParagraphs(result);
 
-            // 12. Restore Protected Elements
             inlineCodes.forEach((c, i) => { result = result.replace(`[[INLINECODE${i}]]`, c); });
             codeBlocks.forEach((c, i) => { result = result.replace(`[[CODEBLOCK${i}]]`, c); });
 
@@ -467,7 +449,7 @@
                 } else {
                     highlighted = hljs.highlightAuto(safeCode).value;
                 }
-            } catch (e) { /* fallback */ }
+            } catch (e) { }
 
             return `<div class="code-block">
                 <div class="code-header">
@@ -532,44 +514,40 @@
         }
 
         parseLists(text) {
-    const lines = text.split('\n');
-    let result = [];
-    let inUl = false, inOl = false;
-    let ulItems = [], olItems = [];
+            const lines = text.split('\n');
+            let result = [];
+            let inUl = false, inOl = false;
+            let ulItems = [], olItems = [];
 
-    for (let line of lines) {
-        // 1. Check voor task list items: - [ ] of - [x]
-        const taskMatch = line.match(/^[\s]*[-*+][\s]+\[( |x)\][\s]+(.+)$/);
-        // 2. Check voor normale unordered list items (eenvoudiger!)
-        const ulMatch = line.match(/^[\s]*[-*+][\s]+(.+)$/); 
-        // 3. Check voor ordered list items
-        const olMatch = line.match(/^[\s]*(\d+)\.[\s]+(.+)$/);
+            for (let line of lines) {
+                const taskMatch = line.match(/^[\s]*[-*+][\s]+\[( |x)\][\s]+(.+)$/);
+                const ulMatch = line.match(/^[\s]*[-*+][\s]+(.+)$/); 
+                const olMatch = line.match(/^[\s]*(\d+)\.[\s]+(.+)$/);
 
-        if (taskMatch) {
-            if (inOl) { result.push('<ol>' + olItems.join('') + '</ol>'); inOl = false; olItems = []; }
-            if (!inUl) { inUl = true; ulItems = []; }
-            const isChecked = taskMatch[1] === 'x';
-            const content = taskMatch[2] || '';
-            ulItems.push(`<li class="task-list-item"><input type="checkbox" ${isChecked ? 'checked' : ''} disabled> ${content}</li>`);
-        } else if (ulMatch) {
-            // Omdat taskMatch al gecheckt is, weten we dat dit een gewone bullet is
-            if (inOl) { result.push('<ol>' + olItems.join('') + '</ol>'); inOl = false; olItems = []; }
-            if (!inUl) { inUl = true; ulItems = []; }
-            ulItems.push(`<li>${ulMatch[1] || ''}</li>`);
-        } else if (olMatch) {
-            if (inUl) { result.push('<ul>' + ulItems.join('') + '</ul>'); inUl = false; ulItems = []; }
-            if (!inOl) { inOl = true; olItems = []; }
-            olItems.push(`<li>${olMatch[2] || ''}</li>`);
-        } else {
-            if (inUl) { result.push('<ul>' + ulItems.join('') + '</ul>'); inUl = false; ulItems = []; }
-            if (inOl) { result.push('<ol>' + olItems.join('') + '</ol>'); inOl = false; olItems = []; }
-            result.push(line);
+                if (taskMatch) {
+                    if (inOl) { result.push('<ol>' + olItems.join('') + '</ol>'); inOl = false; olItems = []; }
+                    if (!inUl) { inUl = true; ulItems = []; }
+                    const isChecked = taskMatch[1] === 'x';
+                    const content = taskMatch[2] || '';
+                    ulItems.push(`<li class="task-list-item"><input type="checkbox" ${isChecked ? 'checked' : ''} disabled> ${content}</li>`);
+                } else if (ulMatch) {
+                    if (inOl) { result.push('<ol>' + olItems.join('') + '</ol>'); inOl = false; olItems = []; }
+                    if (!inUl) { inUl = true; ulItems = []; }
+                    ulItems.push(`<li>${ulMatch[1] || ''}</li>`);
+                } else if (olMatch) {
+                    if (inUl) { result.push('<ul>' + ulItems.join('') + '</ul>'); inUl = false; ulItems = []; }
+                    if (!inOl) { inOl = true; olItems = []; }
+                    olItems.push(`<li>${olMatch[2] || ''}</li>`);
+                } else {
+                    if (inUl) { result.push('<ul>' + ulItems.join('') + '</ul>'); inUl = false; ulItems = []; }
+                    if (inOl) { result.push('<ol>' + olItems.join('') + '</ol>'); inOl = false; olItems = []; }
+                    result.push(line);
+                }
+            }
+            if (inUl) result.push('<ul>' + ulItems.join('') + '</ul>');
+            if (inOl) result.push('<ol>' + olItems.join('') + '</ol>');
+            return result.join('\n');
         }
-    }
-    if (inUl) result.push('<ul>' + ulItems.join('') + '</ul>');
-    if (inOl) result.push('<ol>' + olItems.join('') + '</ol>');
-    return result.join('\n');
-}
 
         parseParagraphs(text) {
             const blocks = text.split(/\n\n+/);
@@ -584,10 +562,6 @@
     }
 
     const mdParser = new MarkdownParser();
-
-    // ==========================================
-    // APP LOGIC
-    // ==========================================
 
     const API_BASE = "https://gen.pollinations.ai";
     const SYS_PROMPT = `
@@ -613,7 +587,6 @@ You are *HyperRush AI*, an AI created by **The HyperRush Network** in March 2026
     let abortController = null;
 
     async function init() {
-        // Load chats safely
         try {
             const stored = localStorage.getItem('gem_v15');
             if (stored) CHATS = JSON.parse(stored);
