@@ -3,292 +3,294 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini</title>
+    <title>Gemini Workspace</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Display:wght@400&family=Google+Sans+Text:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
     
+    <!-- MINIFIED CSS -->
     <style>
-        :root {
-            --bg-color: #131314;
-            --txt-primary: #e3e3e3;
-            --txt-secondary: #c4c7c5;
-            --input-bg: #1e1f20;
-            --accent: #8ab4f8;
-            --border: #444746;
-            --success: #4ade80;
-            --warning: #facc15;
-        }
-
-        /* Custom Scrollbars */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #3c3d3f; border-radius: 10px; border: 2px solid var(--bg-color); }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: var(--bg-color);
-            color: var(--txt-primary);
-            font-family: 'Google Sans', Roboto, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* Header */
-        .header {
-            padding: 12px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-        }
-        .logo { font-size: 22px; font-weight: 500; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-        .logo span { background: linear-gradient(45deg, #4285f4, #9b72cb, #d96570); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
-        
-        .wallet-info { display: flex; gap: 20px; align-items: center; }
-        .stat-item { font-size: 12px; display: flex; flex-direction: column; align-items: flex-end; }
-        .stat-label { font-size: 9px; text-transform: uppercase; color: var(--txt-secondary); opacity: 0.8; }
-        .val-balance { color: var(--success); font-weight: 500; }
-        .val-used { color: var(--warning); }
-
-        /* Main View (Gemini Home) */
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            transition: all 0.4s ease;
-        }
-        .welcome-text {
-            font-size: 40px;
-            font-weight: 500;
-            margin-bottom: 40px;
-            background: linear-gradient(to right, #4285f4, #9b72cb, #d96570);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-        }
-
-        /* Chat View (Actieve Chat) */
-        .chat-view {
-            display: none;
-            flex: 1;
-            overflow-y: auto;
-            width: 100%;
-            padding: 20px;
-        }
-        .chat-content {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-            padding-bottom: 150px;
-        }
-
-        /* Messages */
-        .message { width: 100%; display: flex; flex-direction: column; }
-        .user-msg { align-self: flex-end; background: #2b2c2f; padding: 14px 22px; border-radius: 24px; max-width: 80%; }
-        .ai-msg { align-self: flex-start; line-height: 1.7; font-size: 16px; }
-        .ai-msg pre { background: #000; padding: 16px; border-radius: 12px; margin: 12px 0; overflow-x: auto; border: 1px solid var(--border); }
-
-        /* Input Area (Gemini Style) */
-        .input-wrapper {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            padding: 0 24px 32px;
-            background: linear-gradient(transparent, var(--bg-color) 30%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .input-box {
-            width: 100%;
-            max-width: 760px;
-            background: var(--input-bg);
-            border-radius: 28px;
-            padding: 12px 24px;
-            display: flex;
-            align-items: flex-end;
-            gap: 12px;
-            transition: background 0.2s;
-        }
-        .input-box:focus-within { background: #282a2d; }
-        
-        textarea {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: white;
-            font-size: 16px;
-            padding: 8px 0;
-            resize: none;
-            max-height: 200px;
-            font-family: inherit;
-        }
-
-        .send-btn { background: none; border: none; color: var(--accent); cursor: pointer; padding: 8px; transition: 0.2s; }
-        .send-btn:disabled { opacity: 0.3; }
-
-        /* Helper Classes */
-        .hidden { display: none !important; }
-        .dots { display: flex; gap: 4px; padding: 10px 0; }
-        .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 1.4s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.1); } }
+        :root{--bg-m:#0f0f10;--bg-s:#18181b;--bg-c:#1f1f23;--txt-p:#e3e3e3;--txt-s:#8b8b8d;--hov:#2a2a2e;--acc:#7b9cf4;--acc-g:linear-gradient(135deg,#7b9cf4,#b49cf4);--bor:rgba(255,255,255,0.06);}
+        ::-webkit-scrollbar{width:6px;}
+        ::-webkit-scrollbar-track{background:0 0;}
+        ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:10px;}
+        ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.3);}
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{background:var(--bg-m);color:var(--txt-p);font-family:'Google Sans Text',sans-serif;height:100vh;display:flex;overflow:hidden;}
+        .sidebar{width:260px;background:var(--bg-s);display:flex;flex-direction:column;padding:16px;gap:8px;border-right:1px solid var(--bor);}
+        .new-btn{display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid var(--bor);border-radius:26px;cursor:pointer;font-size:14px;font-weight:500;color:var(--txt-p);transition:.2s;background:transparent;}
+        .new-btn:hover{background:var(--hov);border-color:rgba(255,255,255,.1);}
+        .hist-l{font-size:11px;font-weight:600;padding:16px 12px 8px;color:var(--txt-s);text-transform:uppercase;letter-spacing:.5px;}
+        .chat-l{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+        .chat-i{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:24px;font-size:14px;cursor:pointer;color:var(--txt-s);transition:.2s;position:relative;}
+        .chat-i:hover,.chat-i.act{background:var(--hov);color:var(--txt-p);}
+        .chat-i .title-txt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px;}
+        .del-btn{opacity:0;transition:.2s;color:var(--txt-s);display:flex;align-items:center;justify-content:center;width:20px;height:20px;flex-shrink:0;}
+        .chat-i:hover .del-btn{opacity:.6;}
+        .del-btn:hover{opacity:1!important;color:#f28b82;}
+        .main{flex:1;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+        .hdr{padding:16px 24px;display:flex;justify-content:space-between;align-items:center;z-index:10;}
+        .hdr-t{font-size:14px;font-weight:600;color:var(--txt-s);display:flex;align-items:center;gap:8px;}
+        .dot{width:8px;height:8px;background:#4285f4;border-radius:50%;box-shadow:0 0 10px #4285f4;}
+        .wallet{background:rgba(255,255,255,.05);padding:6px 16px;border-radius:16px;font-size:12px;font-family:'Roboto Mono',monospace;color:#4ade80;border:1px solid rgba(74,222,128,.15);}
+        #w-v{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;}
+        .glow{position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(123,156,244,.15) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+        .hero{position:relative;z-index:1;}
+        .hero h1{font-family:'Google Sans Display',sans-serif;font-size:56px;font-weight:400;background:var(--acc-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;line-height:1.1;}
+        .hero p{color:var(--txt-s);font-size:16px;margin-bottom:48px;max-width:400px;}
+        .cards{display:flex;gap:12px;margin-bottom:100px;}
+        .card{background:var(--bg-s);border:1px solid var(--bor);padding:16px 24px;border-radius:16px;font-size:14px;color:var(--txt-s);cursor:pointer;transition:.2s;text-align:left;width:180px;}
+        .card:hover{background:var(--hov);border-color:rgba(255,255,255,.1);color:var(--txt-p);transform:translateY(-2px);}
+        .card strong{display:block;color:var(--txt-p);margin-bottom:4px;font-weight:500;}
+        #c-v{flex:1;overflow-y:auto;padding:24px;display:none;}
+        .c-c{max-width:800px;margin:0 auto;display:flex;flex-direction:column;gap:24px;padding-bottom:160px;}
+        .msg{display:flex;flex-direction:column;gap:8px;width:100%;line-height:1.6;font-size:15px;}
+        .msg.u{align-self:flex-end;background:var(--bg-c);padding:12px 20px;border-radius:24px;max-width:85%;border:1px solid var(--bor);}
+        .msg.ai{align-self:flex-start;padding-left:4px;}
+        .msg.ai pre{background:var(--bg-c);padding:16px;border-radius:12px;overflow-x:auto;margin:12px 0;border:1px solid var(--bor);font-family:'Roboto Mono',monospace;font-size:13px;}
+        .msg.ai p{margin-bottom:8px;}
+        .msg.ai code{background:var(--bg-c);padding:2px 6px;border-radius:4px;font-family:'Roboto Mono',monospace;font-size:13px;}
+        .msg.ai pre code{background:transparent;padding:0;}
+        .inp-a{position:absolute;bottom:0;width:100%;padding:16px 24px 32px;background:linear-gradient(transparent,var(--bg-m) 30%);display:flex;justify-content:center;z-index:10;}
+        .inp-b{width:100%;max-width:700px;background:var(--bg-c);border-radius:28px;padding:12px 16px;display:flex;align-items:center;gap:12px;border:1px solid var(--bor);transition:.2s;}
+        .inp-b:focus-within{border-color:rgba(255,255,255,.1);box-shadow:0 0 0 1px var(--hov);}
+        textarea{flex:1;background:transparent;border:0;outline:0;color:var(--txt-p);font-size:15px;padding:4px 0;resize:none;max-height:150px;font-family:inherit;line-height:1.5;}
+        .snd{background:var(--acc);border:0;color:#000;cursor:pointer;padding:8px;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:.2s;opacity:.8;}
+        .snd:hover{opacity:1;transform:scale(1.05);}
+        .snd:disabled{opacity:.3;cursor:default;transform:none;}
+        .loader{display:flex;gap:6px;padding:10px 0;align-items:center;}
+        .ldr{width:6px;height:6px;background:var(--acc);border-radius:50%;animation:pulse 1.4s infinite;}
+        .ldr:nth-child(2){animation-delay:-.16s;}
+        .ldr:nth-child(3){animation-delay:-.32s;}
+        @keyframes pulse{0%,80%,100%{transform:scale(.6);opacity:.5;}40%{transform:scale(1);opacity:1;}}
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="logo" onclick="location.reload()"><span>◉</span> Gemini</div>
-    <div class="wallet-info">
-        <div class="stat-item">
-            <span class="stat-label">Sessie</span>
-            <span id="ui-used" class="val-used">0,00</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-label">Saldo</span>
-            <span id="ui-balance" class="val-balance">...</span>
+<div class="sidebar">
+    <div class="new-btn" onclick="newChat()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Nieuwe chat
+    </div>
+    <div class="hist-l">Geschiedenis</div>
+    <div class="chat-l" id="chat-list"></div>
+</div>
+
+<div class="main">
+    <div class="hdr">
+        <div class="hdr-t">Gemini <span class="dot"></span></div>
+        <div class="wallet" id="ui-balance">... pollen</div>
+    </div>
+
+    <div id="w-v">
+        <div class="glow"></div>
+        <div class="hero">
+            <h1>Hallo, Ik ben Gemini</h1>
+            <p>Je persoonlijke AI-assistent voor creativiteit en productiviteit.</p>
+            <div class="cards">
+                <div class="card" onclick="setPrompt('Schrijf een gedicht over de zee')">
+                    <strong>Poëtisch</strong>
+                    Schrijf een gedicht over de zee
+                </div>
+                <div class="card" onclick="setPrompt('Leg quantum computing uit')">
+                    <strong>Uitleg</strong>
+                    Leg quantum computing uit
+                </div>
+                <div class="card" onclick="setPrompt('Plan een reis naar Japan')">
+                    <strong>Reizen</strong>
+                    Plan een reis naar Japan
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="home-view" class="main-container">
-    <h1 class="welcome-text">Hoe kan ik je vandaag helpen?</h1>
-</div>
-
-<div id="chat-view" class="chat-view">
-    <div id="chat-content" class="chat-content"></div>
-</div>
-
-<div class="input-wrapper">
-    <div class="input-box">
-        <textarea id="prompt" placeholder="Stel een vraag aan Gemini..." rows="1"></textarea>
-        <button class="send-btn" id="send-btn" onclick="generate()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-        </button>
+    <div id="c-v">
+        <div class="c-c" id="c-c"></div>
     </div>
-    <p style="font-size: 11px; color: var(--txt-secondary); margin-top: 12px; opacity: 0.6;">
-        Gemini kan onjuiste informatie geven, controleer belangrijke antwoorden.
-    </p>
+
+    <div class="inp-a">
+        <div class="inp-b">
+            <textarea id="prompt" placeholder="Stel een vraag..." rows="1"></textarea>
+            <button class="snd" id="send-btn" onclick="handleSend()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
-    const BASE = "https://gen.pollinations.ai";
-    const GREETING = "Hallo! Ik ben Gemini. Hoe kan ik je vandaag helpen?";
-    let STATE = { 
-        key: localStorage.getItem('pk'), 
-        balance: 0, 
-        used: 0, 
-        history: [{ role: "assistant", content: GREETING }], // Bot ziet nu zijn eigen begroeting
-        isChatActive: false 
-    };
+    const BASE="https://gen.pollinations.ai";let CURRENT_CHAT_ID=null;let CHATS=JSON.parse(localStorage.getItem('gemini_chats')||'[]');let API_KEY=localStorage.getItem('pk');
 
-    function init() {
-        if (!STATE.key) {
-            const key = new URLSearchParams(window.location.hash.substring(1)).get('api_key');
-            if (key) { localStorage.setItem('pk', key); window.location.hash = ''; location.reload(); }
-            else { window.location.href = `https://enter.pollinations.ai/authorize?redirect_url=${encodeURIComponent(window.location.href.split('#')[0])}&permissions=profile,balance,usage`; return; }
+    async function init(){
+        if(!API_KEY){
+            const k=new URLSearchParams(window.location.hash.substring(1)).get('api_key');
+            if(k){localStorage.setItem('pk',k);window.location.hash='';location.reload()}
+            else{window.location.href=`https://enter.pollinations.ai/authorize?redirect_url=${encodeURIComponent(window.location.href)}&permissions=profile,balance,usage`;return}
         }
-        updateStatus();
-        
-        const ta = document.getElementById('prompt');
-        ta.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = this.scrollHeight + 'px'; });
-        ta.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generate(); } });
+        renderSidebar();updateBalance();
+        const ta=document.getElementById('prompt');
+        ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px'});
+        ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSend()}})
     }
 
-    async function updateStatus() {
-        try {
-            const res = await fetch(`${BASE}/account/balance`, { headers: { 'Authorization': `Bearer ${STATE.key}` }});
-            const d = await res.json();
-            const newVal = (typeof d === 'object' && d !== null) ? (d.balance ?? 0) : (parseFloat(d) || 0);
-            if (STATE.balance > 0 && newVal < STATE.balance) STATE.used += (STATE.balance - newVal);
-            STATE.balance = newVal;
-            const fmt = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
-            document.getElementById('ui-balance').innerText = STATE.balance.toLocaleString('nl-NL', fmt);
-            document.getElementById('ui-used').innerText = STATE.used.toLocaleString('nl-NL', fmt);
-        } catch(e) {}
+    async function updateBalance(){
+        try{
+            const r=await fetch(`${BASE}/account/balance`,{headers:{'Authorization':`Bearer ${API_KEY}`}});
+            const d=await r.json();
+            const v=(typeof d==='object')?(d.balance??0):parseFloat(d);
+            document.getElementById('ui-balance').innerText=v.toLocaleString('nl-NL',{minimumFractionDigits:2})+' pollen'
+        }catch(e){}
     }
 
-    function switchToChat() {
-        if (STATE.isChatActive) return;
-        document.getElementById('home-view').style.display = 'none';
-        const chatView = document.getElementById('chat-view');
-        chatView.style.display = 'block';
-        
-        // Render het eerste bericht van de bot in de UI
-        const content = document.getElementById('chat-content');
-        content.innerHTML = `<div class="message ai-msg">${marked.parse(GREETING)}</div>`;
-        
-        STATE.isChatActive = true;
+    function renderSidebar(){
+        const l=document.getElementById('chat-list');l.innerHTML='';
+        CHATS.forEach(c=>{
+            const i=document.createElement('div');
+            i.className=`chat-i ${c.id===CURRENT_CHAT_ID?'act':''}`;
+            i.innerHTML=`<span class="title-txt" onclick="loadChat('${c.id}')">${c.title}</span><span class="del-btn" onclick="deleteChat(event, '${c.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span>`;
+            l.appendChild(i)
+        })
     }
 
-    async function generate() {
-        const input = document.getElementById('prompt');
-        const text = input.value.trim();
-        if (!text) return;
+    function newChat(){
+        CURRENT_CHAT_ID=null;
+        document.getElementById('w-v').style.display='flex';
+        document.getElementById('c-v').style.display='none';
+        document.getElementById('c-c').innerHTML='';
+        renderSidebar()
+    }
 
-        switchToChat();
+    function loadChat(id){
+        CURRENT_CHAT_ID=id;
+        const c=CHATS.find(x=>x.id===id);
+        if(!c)return;
+        document.getElementById('w-v').style.display='none';
+        document.getElementById('c-v').style.display='block';
+        document.getElementById('c-c').innerHTML='';
+        c.messages.forEach(m=>renderMsg(m.role,m.content));
+        renderSidebar()
+    }
 
-        const content = document.getElementById('chat-content');
-        const scrollBox = document.getElementById('chat-view');
-        
-        content.innerHTML += `<div class="message user-msg">${text}</div>`;
-        STATE.history.push({ role: "user", content: text });
-        
-        input.value = '';
-        input.style.height = 'auto';
-        document.getElementById('send-btn').disabled = true;
+    function deleteChat(e,id){
+        e.stopPropagation();
+        CHATS=CHATS.filter(c=>c.id!==id);
+        save();
+        if(CURRENT_CHAT_ID===id)newChat();
+        else renderSidebar()
+    }
 
-        const aiDiv = document.createElement('div');
-        aiDiv.className = 'message ai-msg';
-        aiDiv.innerHTML = '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
-        content.appendChild(aiDiv);
-        scrollBox.scrollTop = scrollBox.scrollHeight;
+    function renderMsg(role,cont){
+        const c=document.getElementById('c-c');
+        const d=document.createElement('div');
+        d.className=`msg ${role==='user'?'u':'ai'}`;
+        d.innerHTML=role==='user'?cont:marked.parse(cont);
+        c.appendChild(d);
+        document.getElementById('c-v').scrollTop=document.getElementById('c-v').scrollHeight;
+        return d
+    }
 
-        try {
-            const res = await fetch(`${BASE}/v1/chat/completions`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${STATE.key}` },
-                body: JSON.stringify({ model: "gemini-fast", messages: STATE.history, stream: true })
+    function setPrompt(t){
+        document.getElementById('prompt').value=t;
+        document.getElementById('prompt').focus()
+    }
+
+    async function genTitle(chat){
+        try{
+            // Gebruik de eerste gebruikersinput voor de titel
+            const userMsg = chat.messages[0].content;
+            const r=await fetch(`${BASE}/v1/chat/completions`,{
+                method:'POST',
+                headers:{'Content-Type':'application/json','Authorization':`Bearer ${API_KEY}`},
+                body:JSON.stringify({
+                    model:"gemini-fast",
+                    messages:[{role:"user", content: `Genereer een hele korte titel (max 4 woorden) voor deze prompt. Geef ALLEEN de titel terug, geen leestekens of uitleg.\n\nPrompt: "${userMsg}"`}],
+                    stream:false
+                })
             });
+            
+            if(!r.ok) return; // Stop als API faalt
+            
+            const d=await r.json();
+            if(d.choices && d.choices[0].message && d.choices[0].message.content){
+                let title = d.choices[0].message.content;
+                // Opschonen: verwijder quotes, newlines en maak eerste letter hoofdletter
+                title = title.replace(/["'\n]/g, '').trim();
+                chat.title = title.charAt(0).toUpperCase() + title.slice(1);
+                save(); // Sla op en update UI
+            }
+        }catch(e){console.log("Titel generatie mislukt", e)}
+    }
 
-            const reader = res.body.getReader();
-            const decoder = new TextDecoder();
-            let full = "";
-            aiDiv.innerHTML = "";
+    async function handleSend(){
+        const i=document.getElementById('prompt');
+        const t=i.value.trim();
+        if(!t)return;
+        
+        i.value='';i.style.height='auto';
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                const chunk = decoder.decode(value);
-                const lines = chunk.split('\n');
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const data = line.slice(6);
-                        if (data === '[DONE]') continue;
-                        try {
-                            const json = JSON.parse(data);
-                            full += json.choices[0].delta.content || "";
-                            aiDiv.innerHTML = marked.parse(full);
-                            scrollBox.scrollTop = scrollBox.scrollHeight;
-                        } catch(e) {}
+        if(!CURRENT_CHAT_ID){
+            CURRENT_CHAT_ID=Date.now().toString();
+            CHATS.unshift({id:CURRENT_CHAT_ID,title:"New chat",messages:[]});
+            document.getElementById('w-v').style.display='none';
+            document.getElementById('c-v').style.display='block'
+        }
+
+        const c=CHATS.find(x=>x.id===CURRENT_CHAT_ID);
+        c.messages.push({role:'user',content:t});
+        renderMsg('user',t);
+        renderSidebar(); // Update sidebar om "New chat" te tonen
+        
+        const a=renderMsg('ai','<div class="loader"><div class="ldr"></div><div class="ldr"></div><div class="ldr"></div></div>');
+        
+        try{
+            const r=await fetch(`${BASE}/v1/chat/completions`,{
+                method:'POST',
+                headers:{'Content-Type':'application/json','Authorization':`Bearer ${API_KEY}`},
+                body:JSON.stringify({model:"gemini-fast",messages:c.messages,stream:true})
+            });
+            
+            const rd=r.body.getReader();
+            const dc=new TextDecoder();
+            let ft="";
+            
+            while(true){
+                const{done,value}=await rd.read();
+                if(done)break;
+                const ch=dc.decode(value);
+                const l=ch.split('\n');
+                for(const ln of l){
+                    if(ln.startsWith('data: ')){
+                        const dt=ln.slice(6);
+                        if(dt==='[DONE]')continue;
+                        try{
+                            const j=JSON.parse(dt);
+                            if(j.choices&&j.choices[0].delta&&j.choices[0].delta.content){
+                                ft+=j.choices[0].delta.content;
+                                a.innerHTML=marked.parse(ft);
+                                document.getElementById('c-v').scrollTop=document.getElementById('c-v').scrollHeight
+                            }
+                        }catch(e){}
                     }
                 }
             }
-            STATE.history.push({ role: "assistant", content: full });
-            updateStatus();
-        } catch (e) { aiDiv.innerHTML = "Fout bij verbinding."; }
-        finally { document.getElementById('send-btn').disabled = false; }
+            
+            c.messages.push({role:'assistant',content:ft});
+            save();
+            updateBalance();
+            
+            // Genereer titel na het eerste antwoord (berichtenset is nu 2: user + assistant)
+            if(c.messages.length===2){
+                genTitle(c);
+            }
+            
+        }catch(e){a.innerHTML="<span style='color:#f28b82'>Verbindingsfout.</span>"}
+    }
+
+    function save(){
+        localStorage.setItem('gemini_chats',JSON.stringify(CHATS));
+        renderSidebar()
     }
 
     init();
 </script>
-
 </body>
 </html>
